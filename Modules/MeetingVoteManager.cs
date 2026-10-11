@@ -33,7 +33,7 @@ public class MeetingVoteManager
     {
         foreach (var voteArea in meetingHud.playerStates)
         {
-            allVotes[voteArea.TargetPlayerId] = new(voteArea.TargetPlayerId);
+            allVotes[voteArea.PlayerId.Value] = new(voteArea.PlayerId.Value);
         }
     }
     /// <summary>
@@ -118,17 +118,17 @@ public class MeetingVoteManager
         var states = new List<MeetingHud.VoterState>();
         foreach (var voteArea in meetingHud.playerStates)
         {
-            var voteData = AllVotes.TryGetValue(voteArea.TargetPlayerId, out var value) ? value : null;
+            var voteData = AllVotes.TryGetValue(voteArea.PlayerId.Value, out var value) ? value : null;
             if (voteData == null)
             {
-                logger.Warn($"{Utils.GetPlayerById(voteArea.TargetPlayerId).GetNameWithRole()} の投票データがありません");
+                logger.Warn($"{Utils.GetPlayerById(voteArea.PlayerId.Value).GetNameWithRole()} の投票データがありません");
                 continue;
             }
             for (var i = 0; i < voteData.NumVotes; i++)
             {
                 states.Add(new()
                 {
-                    VoterId = voteArea.TargetPlayerId,
+                    VoterId = voteArea.PlayerId.Value,
                     VotedForId = voteData.VotedFor,
                 });
             }
@@ -136,12 +136,12 @@ public class MeetingVoteManager
 
         if (AntiBlackout.OverrideExiledPlayer)
         {
-            meetingHud.RpcVotingComplete(states.ToArray(), null, true);
+            meetingHud.RpcVotingComplete(states.ToArray(), null, true, false, 0);
             ExileControllerWrapUpPatch.AntiBlackout_LastExiled = result.Exiled;
         }
         else
         {
-            meetingHud.RpcVotingComplete(states.ToArray(), result.Exiled, result.IsTie);
+            meetingHud.RpcVotingComplete(states.ToArray(), result.Exiled, result.IsTie, false, 0);
         }
         if (result.Exiled != null)
         {
@@ -167,7 +167,7 @@ public class MeetingVoteManager
         Dictionary<byte, int> votes = new();
         foreach (var voteArea in meetingHud.playerStates)
         {
-            votes[voteArea.TargetPlayerId] = 0;
+            votes[voteArea.PlayerId.Value] = 0;
         }
         votes[Skip] = 0;
         foreach (var vote in AllVotes.Values)
