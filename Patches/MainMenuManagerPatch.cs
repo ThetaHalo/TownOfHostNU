@@ -15,7 +15,9 @@ namespace TownOfHost
         [HarmonyPatch(nameof(MainMenuManager.Start)), HarmonyPostfix, HarmonyPriority(Priority.Normal)]
         public static void StartPostfix(MainMenuManager __instance)
         {
+            __instance.PlayOnlineButton.GetComponent<PassiveButton>().enabled = true;
             SimpleButton.SetBase(__instance.quitButton);
+
             //Discordボタンを生成
             if (SimpleButton.IsNullOrDestroyed(discordButton))
             {
@@ -24,9 +26,9 @@ namespace TownOfHost
                     new(-1f, -1f, 1f),
                     new(88, 101, 242, byte.MaxValue),
                     new(148, 161, byte.MaxValue, byte.MaxValue),
-                    () => Application.OpenURL(Main.DiscordInviteUrl),
+                    () => Application.OpenURL(TOHPlugin.DiscordInviteUrl),
                     "Discord",
-                    isActive: Main.ShowDiscordButton);
+                    isActive: TOHPlugin.ShowDiscordButton);
             }
 
             // GitHubボタンを生成
@@ -120,7 +122,7 @@ namespace TownOfHost
                 CredentialsPatch.TohLogo.gameObject.SetActive(true);
             }
         }
-        [HarmonyPatch(nameof(MainMenuManager.OpenOnlineMenu)), HarmonyPostfix]
+        //[HarmonyPatch(nameof(MainMenuManager.OpenOnlineMenu)), HarmonyPostfix]
         public static void FindGameButtonDisable(MainMenuManager __instance)
         {
             __instance.findGameButton.gameObject.SetActive(false);

@@ -71,7 +71,7 @@ public sealed class MadSnitch : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     {
         if (!KnowsImpostor()) return;
 
-        foreach (var impostor in Main.AllPlayerControls.Where(player => player.Is(CustomRoleTypes.Impostor)))
+        foreach (var impostor in TOHPlugin.AllPlayerControls.Where(player => player.Is(CustomRoleTypes.Impostor)))
         {
             NameColorManager.Add(Player.PlayerId, impostor.PlayerId, impostor.GetRoleColorCode());
         }

@@ -50,7 +50,7 @@ public static class ModUnloaderScreen
             ClientActionItem.ModOptionsButton.gameObject.SetActive(false);
             Logger.Info("ModをUnloadします", nameof(ModUnloaderScreen));
             Harmony.UnpatchAll();
-            Main.Instance.Unload();
+            TOHPlugin.Instance.Unload();
         }));
     }
 

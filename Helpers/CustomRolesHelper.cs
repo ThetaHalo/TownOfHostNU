@@ -74,7 +74,7 @@ namespace TownOfHost
         {
             if (role.IsVanilla())
             {
-                var roleOpt = Main.NormalOptions.RoleOptions;
+                var roleOpt = TOHPlugin.NormalOptions.RoleOptions;
                 return role switch
                 {
                     CustomRoles.Engineer => roleOpt.GetNumPerGame(RoleTypes.Engineer),
@@ -99,7 +99,7 @@ namespace TownOfHost
         {
             if (role.IsVanilla())
             {
-                var roleOpt = Main.NormalOptions.RoleOptions;
+                var roleOpt = TOHPlugin.NormalOptions.RoleOptions;
                 return role switch
                 {
                     CustomRoles.Engineer => roleOpt.GetChancePerGame(RoleTypes.Engineer),

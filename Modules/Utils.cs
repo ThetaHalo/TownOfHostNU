@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes;
 using UnityEngine;
 
@@ -33,7 +34,7 @@ namespace TownOfHost
             {
                 return false;
             }
-            int mapId = Main.NormalOptions.MapId;
+            int mapId = TOHPlugin.NormalOptions.MapId;
             switch (type)
             {
                 case SystemTypes.Electrical:
@@ -89,7 +90,7 @@ namespace TownOfHost
                     return false;
             }
         }
-        public static SystemTypes GetCriticalSabotageSystemType() => (MapNames)Main.NormalOptions.MapId switch
+        public static SystemTypes GetCriticalSabotageSystemType() => (MapNames)TOHPlugin.NormalOptions.MapId switch
         {
             MapNames.Polus => SystemTypes.Laboratory,
             MapNames.Airship => SystemTypes.HeliSabotage,
@@ -130,7 +131,7 @@ namespace TownOfHost
             PlayerControl killer = info.AppearanceKiller, target = info.AttemptTarget;
 
             if (!target.Data.IsDead || GameStates.IsMeeting) return;
-            foreach (var seer in Main.AllPlayerControls)
+            foreach (var seer in TOHPlugin.AllPlayerControls)
             {
                 if (KillFlashCheck(info, seer))
                 {
@@ -182,8 +183,8 @@ namespace TownOfHost
         }
         public static void BlackOut(this IGameOptions opt, bool IsBlackOut)
         {
-            opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultImpostorVision);
-            opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision);
+            opt.SetFloat(FloatOptionNames.ImpostorLightMod, TOHPlugin.DefaultImpostorVision);
+            opt.SetFloat(FloatOptionNames.CrewLightMod, TOHPlugin.DefaultCrewmateVision);
             if (IsBlackOut)
             {
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0);
@@ -216,7 +217,7 @@ namespace TownOfHost
             //デフォルト値
             bool enabled = seer == seen
                         || seen.Is(CustomRoles.GM)
-                        || (Main.VisibleTasksCount && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool());
+                        || (TOHPlugin.VisibleTasksCount && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool());
             var (roleColor, roleText) = GetTrueRoleNameData(seen.PlayerId);
 
             //seen側による変更
@@ -314,13 +315,13 @@ namespace TownOfHost
         }
         public static Color GetRoleColor(CustomRoles role)
         {
-            if (!Main.roleColors.TryGetValue(role, out var hexColor)) hexColor = role.GetRoleInfo()?.RoleColorCode;
+            if (!TOHPlugin.roleColors.TryGetValue(role, out var hexColor)) hexColor = role.GetRoleInfo()?.RoleColorCode;
             _ = ColorUtility.TryParseHtmlString(hexColor, out Color c);
             return c;
         }
         public static string GetRoleColorCode(CustomRoles role)
         {
-            if (!Main.roleColors.TryGetValue(role, out var hexColor)) hexColor = role.GetRoleInfo()?.RoleColorCode;
+            if (!TOHPlugin.roleColors.TryGetValue(role, out var hexColor)) hexColor = role.GetRoleInfo()?.RoleColorCode;
             return hexColor;
         }
 
@@ -331,7 +332,7 @@ namespace TownOfHost
             if (RealKillerColor)
             {
                 var KillerId = state.GetRealKiller();
-                Color color = KillerId != byte.MaxValue ? Main.PlayerColors[KillerId] : GetRoleColor(CustomRoles.Doctor);
+                Color color = KillerId != byte.MaxValue ? TOHPlugin.PlayerColors[KillerId] : GetRoleColor(CustomRoles.Doctor);
                 deathReason = ColorString(color, deathReason);
             }
             return deathReason;
@@ -436,7 +437,7 @@ namespace TownOfHost
             seen ??= seer;
             var comms = IsActive(SystemTypes.Comms);
             bool enabled = seer == seen
-                        || (Main.VisibleTasksCount && !seer.IsAlive() && Options.GhostCanSeeOtherTasks.GetBool());
+                        || (TOHPlugin.VisibleTasksCount && !seer.IsAlive() && Options.GhostCanSeeOtherTasks.GetBool());
             string text = GetProgressText(seen.PlayerId, comms);
 
             //seer側による変更
@@ -455,7 +456,7 @@ namespace TownOfHost
             {
                 ProgressText.Append(roleClass.GetProgressText(comms));
             }
-            if (GetPlayerById(playerId).CanMakeMadmate()) ProgressText.Append(ColorString(Palette.ImpostorRed.ShadeColor(0.5f), $"[{Options.CanMakeMadmateCount.GetInt() - Main.SKMadmateNowCount}]"));
+            if (GetPlayerById(playerId).CanMakeMadmate()) ProgressText.Append(ColorString(Palette.ImpostorRed.ShadeColor(0.5f), $"[{Options.CanMakeMadmateCount.GetInt() - TOHPlugin.SKMadmateNowCount}]"));
 
             return ProgressText.ToString();
         }
@@ -519,7 +520,7 @@ namespace TownOfHost
         }
         public static void ShowActiveSettings(byte PlayerId = byte.MaxValue)
         {
-            var mapId = Main.NormalOptions.MapId;
+            var mapId = TOHPlugin.NormalOptions.MapId;
             if (Options.HideGameSettings.GetBool() && PlayerId != byte.MaxValue)
             {
                 SendMessage(GetString("Message.HideGameSettings"), PlayerId);
@@ -690,7 +691,7 @@ namespace TownOfHost
 
             sb.Append("<size=70%>\n");
             List<byte> cloneRoles = new(PlayerState.AllPlayerStates.Keys);
-            foreach (var id in Main.winnerList)
+            foreach (var id in TOHPlugin.winnerList)
             {
                 sb.Append($"\n★ ".Color(winnerColor)).Append(SummaryTexts(id, true));
                 cloneRoles.Remove(id);
@@ -746,39 +747,39 @@ namespace TownOfHost
         {
             if (!AmongUsClient.Instance.AmHost) return;
             if (title == "") title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
-            Main.MessagesToSend.Add((removeTags ? text.RemoveHtmlTags() : text, sendTo, title));
+            TOHPlugin.MessagesToSend.Add((removeTags ? text.RemoveHtmlTags() : text, sendTo, title));
         }
         public static void ApplySuffix()
         {
             if (!AmongUsClient.Instance.AmHost) return;
             string name = DataManager.player.Customization.Name;
-            if (Main.nickName != "") name = Main.nickName;
+            if (TOHPlugin.nickName != "") name = TOHPlugin.nickName;
             if (AmongUsClient.Instance.IsGameStarted)
             {
-                if (Options.ColorNameMode.GetBool() && Main.nickName == "") name = Palette.GetColorName(Camouflage.PlayerSkins[PlayerControl.LocalPlayer.PlayerId].ColorId);
+                if (Options.ColorNameMode.GetBool() && TOHPlugin.nickName == "") name = Palette.GetColorName(Camouflage.PlayerSkins[PlayerControl.LocalPlayer.PlayerId].ColorId);
             }
             else
             {
                 if (AmongUsClient.Instance.IsGamePublic)
-                    name = $"<color={Main.ModColor}>TownOfHost v{Main.PluginVersion}</color>\r\n" + name;
+                    name = $"<color={TOHPlugin.ModColor}>TownOfHost v{TOHPlugin.PluginVersion}</color>\r\n" + name;
                 switch (Options.GetSuffixMode())
                 {
                     case SuffixModes.None:
                         break;
                     case SuffixModes.TOH:
-                        name += $"\r\n<color={Main.ModColor}>TOH v{Main.PluginVersion}</color>";
+                        name += $"\r\n<color={TOHPlugin.ModColor}>TOH v{TOHPlugin.PluginVersion}</color>";
                         break;
                     case SuffixModes.Streaming:
-                        name += $"\r\n<color={Main.ModColor}>{GetString("SuffixMode.Streaming")}</color>";
+                        name += $"\r\n<color={TOHPlugin.ModColor}>{GetString("SuffixMode.Streaming")}</color>";
                         break;
                     case SuffixModes.Recording:
-                        name += $"\r\n<color={Main.ModColor}>{GetString("SuffixMode.Recording")}</color>";
+                        name += $"\r\n<color={TOHPlugin.ModColor}>{GetString("SuffixMode.Recording")}</color>";
                         break;
                     case SuffixModes.RoomHost:
-                        name += $"\r\n<color={Main.ModColor}>{GetString("SuffixMode.RoomHost")}</color>";
+                        name += $"\r\n<color={TOHPlugin.ModColor}>{GetString("SuffixMode.RoomHost")}</color>";
                         break;
                     case SuffixModes.OriginalName:
-                        name += $"\r\n<color={Main.ModColor}>{DataManager.player.Customization.Name}</color>";
+                        name += $"\r\n<color={TOHPlugin.ModColor}>{DataManager.player.Customization.Name}</color>";
                         break;
                 }
             }
@@ -792,7 +793,7 @@ namespace TownOfHost
             {
                 return cachedPlayer;
             }
-            var player = Main.AllPlayerControls.Where(pc => pc.PlayerId == playerId).FirstOrDefault();
+            var player = TOHPlugin.AllPlayerControls.Where(pc => pc.PlayerId == playerId).FirstOrDefault();
             cachedPlayers[playerId] = player;
             return player;
         }
@@ -805,7 +806,7 @@ namespace TownOfHost
         public static void NotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, bool NoCache = false, bool ForceLoop = false)
         {
             if (!AmongUsClient.Instance.AmHost) return;
-            if (Main.AllPlayerControls == null) return;
+            if (TOHPlugin.AllPlayerControls == null) return;
 
             //ミーティング中の呼び出しは不正
             if (GameStates.IsMeeting) return;
@@ -835,7 +836,7 @@ namespace TownOfHost
 
                 if (seer.IsModClient()) continue;
                 var seerRole = seer.GetRoleClass();
-                string fontSize = isForMeeting ? "1.5" : Main.RoleTextSize.ToString();
+                string fontSize = isForMeeting ? "1.5" : TOHPlugin.RoleTextSize.ToString();
                 if (isForMeeting && (seer.GetClient().PlatformData.Platform is Platforms.Playstation or Platforms.Switch)) fontSize = "70%";
                 logger.Info("NotifyRoles-Loop1-" + seer.GetNameWithRole() + ":START");
 
@@ -892,7 +893,7 @@ namespace TownOfHost
                     SelfName = SelfName.Replace("color=", "");
                     //適用
                     //                    seer.RpcSetNamePrivate(SelfName, true, force: NoCache);
-                    if (NoCache || Main.LastNotifyNames[(seer.PlayerId, seer.PlayerId)] != SelfName)
+                    if (NoCache || TOHPlugin.LastNotifyNames[(seer.PlayerId, seer.PlayerId)] != SelfName)
                     {
                         sender.RpcSetName(seer, SelfName, seer);
                     }
@@ -916,7 +917,7 @@ namespace TownOfHost
                     || ForceLoop
                 )
                 {
-                    foreach (var target in Main.AllPlayerControls)
+                    foreach (var target in TOHPlugin.AllPlayerControls)
                     {
                         //targetがseer自身の場合は何もしない
                         if (target == seer) continue;
@@ -986,7 +987,7 @@ namespace TownOfHost
 
                             //適用
                             //target.RpcSetNamePrivate(TargetName, true, seer, force: NoCache);
-                            if (NoCache || Main.LastNotifyNames[(target.PlayerId, seer.PlayerId)] != TargetName)
+                            if (NoCache || TOHPlugin.LastNotifyNames[(target.PlayerId, seer.PlayerId)] != TargetName)
                             {
                                 sender.RpcSetName(target, TargetName, seer);
                             }
@@ -1032,11 +1033,11 @@ namespace TownOfHost
         }
         public static void CountAlivePlayers(bool sendLog = false)
         {
-            int AliveImpostorCount = Main.AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Impostor));
-            if (Main.AliveImpostorCount != AliveImpostorCount)
+            int AliveImpostorCount = TOHPlugin.AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Impostor));
+            if (TOHPlugin.AliveImpostorCount != AliveImpostorCount)
             {
                 Logger.Info("生存しているインポスター:" + AliveImpostorCount + "人", "CountAliveImpostors");
-                Main.AliveImpostorCount = AliveImpostorCount;
+                TOHPlugin.AliveImpostorCount = AliveImpostorCount;
                 LastImpostor.SetSubRole();
             }
 
@@ -1087,7 +1088,7 @@ namespace TownOfHost
         public static string CopyLog(string path)
         {
             string t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
-            string fileName = $"{path}/TownOfHost-v{Main.PluginVersion}-{t}.log";
+            string fileName = $"{path}/TownOfHost-v{TOHPlugin.PluginVersion}-{t}.log";
             FileInfo file = new(@$"{Environment.CurrentDirectory}/BepInEx/LogOutput.log");
             var logFile = file.CopyTo(fileName);
             return logFile.FullName;
@@ -1108,7 +1109,7 @@ namespace TownOfHost
             // チャットならposタグを使わない(文字数削減)
             if (isForChat)
             {
-                builder.Append(Main.AllPlayerNames[id]);
+                builder.Append(TOHPlugin.AllPlayerNames[id]);
                 builder.Append(": ").Append(GetProgressText(id).RemoveColorTags());
                 builder.Append(' ').Append(GetVitalText(id));
                 builder.Append(' ').Append(GetTrueRoleName(id, false).RemoveColorTags());
@@ -1120,10 +1121,10 @@ namespace TownOfHost
                 // 1em ≒ 半角2文字
                 // 空白は0.5emとする
                 // SJISではアルファベットは1バイト，日本語は基本的に2バイト
-                var longestNameByteCount = Main.AllPlayerNames.Values.Select(name => name.GetByteCount()).OrderByDescending(byteCount => byteCount).FirstOrDefault();
+                var longestNameByteCount = TOHPlugin.AllPlayerNames.Values.Select(name => name.GetByteCount()).OrderByDescending(byteCount => byteCount).FirstOrDefault();
                 //最大11.5emとする(★+日本語10文字分+半角空白)
                 var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f /* ★+末尾の半角空白 */ , 11.5f);
-                builder.Append(ColorString(Main.PlayerColors[id], Main.AllPlayerNames[id]));
+                builder.Append(ColorString(TOHPlugin.PlayerColors[id], TOHPlugin.AllPlayerNames[id]));
                 builder.AppendFormat("<pos={0}em>", pos).Append(GetProgressText(id)).Append("</pos>");
                 // "(00/00) " = 4em
                 pos += 4f;
@@ -1231,11 +1232,39 @@ namespace TownOfHost
             casted = obj.TryCast<T>();
             return casted != null;
         }
+
+        // code taken from https://github.com/All-Of-Us-Mods/MiraAPI/blob/eac442443bf85051210c8957605a524fb5136e8b/MiraAPI/Utilities/Helpers.cs#L43
+        public static MethodBase? GetStateMachineMoveNext<T>(string methodName)
+        {
+            var typeName = typeof(T).FullName;
+            var showRoleStateMachine =
+                typeof(T)
+                    .GetNestedTypes()
+                    .FirstOrDefault(x=>x.Name.Contains(methodName));
+
+            if (showRoleStateMachine == null)
+            {
+                TOHPlugin.Logger.LogError($"Failed to find {methodName} state machine for {typeName}");
+                return null;
+            }
+
+            var moveNext = AccessTools.Method(showRoleStateMachine, "MoveNext");
+            if (moveNext == null)
+            {
+                TOHPlugin.Logger.LogError($"Failed to find MoveNext method for {typeName}.{methodName}");
+                return null;
+            }
+
+            TOHPlugin.Logger.LogInfo($"Found {methodName}.MoveNext");
+            return moveNext;
+        }
+
+
         public static int AllPlayersCount => PlayerState.AllPlayerStates.Values.Count(state => state.CountType != CountTypes.OutOfGame);
-        public static int AllAlivePlayersCount => Main.AllAlivePlayerControls.Count(pc => !pc.Is(CountTypes.OutOfGame));
+        public static int AllAlivePlayersCount => TOHPlugin.AllAlivePlayerControls.Count(pc => !pc.Is(CountTypes.OutOfGame));
         public static bool IsAllAlive => PlayerState.AllPlayerStates.Values.All(state => state.CountType == CountTypes.OutOfGame || !state.IsDead);
         public static int PlayersCount(CountTypes countTypes) => PlayerState.AllPlayerStates.Values.Count(state => state.CountType == countTypes);
-        public static int AlivePlayersCount(CountTypes countTypes) => Main.AllAlivePlayerControls.Count(pc => pc.Is(countTypes));
+        public static int AlivePlayersCount(CountTypes countTypes) => TOHPlugin.AllAlivePlayerControls.Count(pc => pc.Is(countTypes));
 
         private const string ActiveSettingsSize = "70%";
         private const string ActiveSettingsLineHeight = "55%";

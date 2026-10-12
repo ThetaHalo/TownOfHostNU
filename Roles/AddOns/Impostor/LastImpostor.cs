@@ -22,7 +22,7 @@ namespace TownOfHost.Roles.AddOns.Impostor
         public static void SetKillCooldown()
         {
             if (currentId == byte.MaxValue) return;
-            Main.AllPlayerKillCooldown[currentId] = KillCooldown.GetFloat();
+            TOHPlugin.AllPlayerKillCooldown[currentId] = KillCooldown.GetFloat();
         }
         public static bool CanBeLastImpostor(PlayerControl pc)
         {
@@ -41,9 +41,9 @@ namespace TownOfHost.Roles.AddOns.Impostor
             //ラストインポスターがすでにいれば処理不要
             if (currentId != byte.MaxValue) return;
             if (CurrentGameMode == CustomGameMode.HideAndSeek
-            || !CustomRoles.LastImpostor.IsPresent() || Main.AliveImpostorCount != 1)
+            || !CustomRoles.LastImpostor.IsPresent() || TOHPlugin.AliveImpostorCount != 1)
                 return;
-            foreach (var pc in Main.AllAlivePlayerControls)
+            foreach (var pc in TOHPlugin.AllAlivePlayerControls)
             {
                 if (CanBeLastImpostor(pc))
                 {

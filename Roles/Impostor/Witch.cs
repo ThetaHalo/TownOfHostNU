@@ -157,9 +157,9 @@ namespace TownOfHost.Roles.Impostor
             if (Player.IsAlive() || MyState.DeathReason != CustomDeathReason.Vote)
             {//吊られなかった時呪いキル発動
                 var spelledIdList = new List<byte>();
-                foreach (var pc in Main.AllAlivePlayerControls)
+                foreach (var pc in TOHPlugin.AllAlivePlayerControls)
                 {
-                    if (SpelledPlayer.Contains(pc.PlayerId) && !Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId))
+                    if (SpelledPlayer.Contains(pc.PlayerId) && !TOHPlugin.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId))
                     {
                         pc.SetRealKiller(Player);
                         spelledIdList.Add(pc.PlayerId);

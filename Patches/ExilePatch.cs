@@ -62,7 +62,7 @@ namespace TownOfHost
                 exiled = AntiBlackout_LastExiled;
             }
 
-            var mapId = Main.NormalOptions.MapId;
+            var mapId = TOHPlugin.NormalOptions.MapId;
             // エアシップではまだ湧かない
             if ((MapNames)mapId != MapNames.Airship)
             {
@@ -94,7 +94,7 @@ namespace TownOfHost
                 if (CustomWinnerHolder.WinnerTeam != CustomWinner.Terrorist) PlayerState.GetByPlayerId(exiled.PlayerId).SetDead();
             }
 
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in TOHPlugin.AllPlayerControls)
             {
                 pc.ResetKillCooldown();
             }
@@ -105,19 +105,19 @@ namespace TownOfHost
                 {
                     case 0:
                         map = new RandomSpawn.SkeldSpawnMap();
-                        Main.AllPlayerControls.Do(map.RandomTeleport);
+                        TOHPlugin.AllPlayerControls.Do(map.RandomTeleport);
                         break;
                     case 1:
                         map = new RandomSpawn.MiraHQSpawnMap();
-                        Main.AllPlayerControls.Do(map.RandomTeleport);
+                        TOHPlugin.AllPlayerControls.Do(map.RandomTeleport);
                         break;
                     case 2:
                         map = new RandomSpawn.PolusSpawnMap();
-                        Main.AllPlayerControls.Do(map.RandomTeleport);
+                        TOHPlugin.AllPlayerControls.Do(map.RandomTeleport);
                         break;
                     case 5:
                         map = new RandomSpawn.FungleSpawnMap();
-                        Main.AllPlayerControls.Do(map.RandomTeleport);
+                        TOHPlugin.AllPlayerControls.Do(map.RandomTeleport);
                         break;
                 }
             }
@@ -126,7 +126,7 @@ namespace TownOfHost
             Utils.AfterMeetingTasks();
             if (mapId != 4)
             {
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (var pc in TOHPlugin.AllPlayerControls)
                 {
                     pc.GetRoleClass()?.OnSpawn();
                     pc.SyncSettings();
@@ -155,7 +155,7 @@ namespace TownOfHost
                 }, 0.5f, "Restore IsDead Task");
                 _ = new LateTask(() =>
                 {
-                    Main.AfterMeetingDeathPlayers.Do(x =>
+                    TOHPlugin.AfterMeetingDeathPlayers.Do(x =>
                     {
                         var player = Utils.GetPlayerById(x.Key);
                         var roleClass = CustomRoleManager.GetByPlayerId(x.Key);
@@ -172,7 +172,7 @@ namespace TownOfHost
                         if (roleClass is Executioner executioner && executioner.TargetId == x.Key)
                             Executioner.ChangeRoleByTarget(x.Key);
                     });
-                    Main.AfterMeetingDeathPlayers.Clear();
+                    TOHPlugin.AfterMeetingDeathPlayers.Clear();
                 }, 0.5f, "AfterMeetingDeathPlayers Task");
             }
 

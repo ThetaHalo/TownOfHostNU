@@ -205,7 +205,7 @@ public static class CustomRoleManager
     }
     public static void CreateInstance()
     {
-        foreach (var pc in Main.AllPlayerControls)
+        foreach (var pc in TOHPlugin.AllPlayerControls)
         {
             CreateInstance(pc.GetCustomRole(), pc);
         }
@@ -222,7 +222,7 @@ public static class CustomRoleManager
         }
         if (player.Data.Role.Role == RoleTypes.Shapeshifter)
         {
-            Main.CheckShapeshift.TryAdd(player.PlayerId, false);
+            TOHPlugin.CheckShapeshift.TryAdd(player.PlayerId, false);
         }
     }
     public static void OtherRolesAdd(PlayerControl pc)

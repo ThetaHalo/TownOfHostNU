@@ -19,8 +19,8 @@ namespace TownOfHost.Modules
         [GameModuleInitializer]
         public static void Init()
         {
-            DefaultDiscussionTime = Main.RealOptionsData.GetInt(Int32OptionNames.DiscussionTime);
-            DefaultVotingTime = Main.RealOptionsData.GetInt(Int32OptionNames.VotingTime);
+            DefaultDiscussionTime = TOHPlugin.RealOptionsData.GetInt(Int32OptionNames.DiscussionTime);
+            DefaultVotingTime = TOHPlugin.RealOptionsData.GetInt(Int32OptionNames.VotingTime);
             Logger.Info($"DefaultDiscussionTime:{DefaultDiscussionTime}, DefaultVotingTime{DefaultVotingTime}", "MeetingTimeManager.Init");
             ResetMeetingTime();
         }

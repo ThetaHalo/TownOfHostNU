@@ -10,7 +10,7 @@ namespace TownOfHost
 
         public static void Initialize()
         {
-            if (Main.NormalOptions.MapId != 4) return;
+            if (TOHPlugin.NormalOptions.MapId != 4) return;
             Instance.Initialize();
         }
         public static byte[] GetClosedDoors()

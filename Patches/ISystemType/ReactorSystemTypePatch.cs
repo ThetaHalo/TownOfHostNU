@@ -33,7 +33,7 @@ public static class ReactorSystemTypeUpdateSystemPatch
             {
                 return;
             }
-            var duration = (MapNames)Main.NormalOptions.MapId switch
+            var duration = (MapNames)TOHPlugin.NormalOptions.MapId switch
             {
                 MapNames.Polus => Options.PolusReactorTimeLimit.GetFloat(),
                 MapNames.Fungle => Options.FungleReactorTimeLimit.GetFloat(),

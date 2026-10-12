@@ -60,13 +60,13 @@ public sealed class SpeedBooster : RoleBase
         {   //ｽﾋﾟﾌﾞが生きていて、SpeedBoostTargetに登録済みでなく、全タスク完了orトリガー数までタスクを完了している場合
             var rand = IRandom.Instance;
             List<PlayerControl> targetPlayers = new();
-            targetPlayers.AddRange(Main.AllAlivePlayerControls.ToArray());
+            targetPlayers.AddRange(TOHPlugin.AllAlivePlayerControls.ToArray());
             if (targetPlayers.Count >= 1)
             {
                 var target = targetPlayers[rand.Next(0, targetPlayers.Count)];
                 Logger.Info("スピードブースト先:" + target.GetNameWithRole(), "SpeedBooster");
                 BoostTarget = target.PlayerId;
-                Main.AllPlayerSpeed[BoostTarget] *= UpSpeed;
+                TOHPlugin.AllPlayerSpeed[BoostTarget] *= UpSpeed;
                 target.MarkDirtySettings();
             }
             else //ターゲットが0ならアップ先をプレイヤーをnullに

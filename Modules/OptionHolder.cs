@@ -43,8 +43,8 @@ namespace TownOfHost
         // プリセット
         private static readonly string[] presets =
         {
-            Main.Preset1.Value, Main.Preset2.Value, Main.Preset3.Value,
-            Main.Preset4.Value, Main.Preset5.Value
+            TOHPlugin.Preset1.Value, TOHPlugin.Preset2.Value, TOHPlugin.Preset3.Value,
+            TOHPlugin.Preset4.Value, TOHPlugin.Preset5.Value
         };
 
         // ゲームモード
@@ -58,11 +58,11 @@ namespace TownOfHost
         };
 
         // MapActive
-        public static bool IsActiveSkeld => AddedTheSkeld.GetBool() || Main.NormalOptions.MapId == 0;
-        public static bool IsActiveMiraHQ => AddedMiraHQ.GetBool() || Main.NormalOptions.MapId == 1;
-        public static bool IsActivePolus => AddedPolus.GetBool() || Main.NormalOptions.MapId == 2;
-        public static bool IsActiveAirship => AddedTheAirShip.GetBool() || Main.NormalOptions.MapId == 4;
-        public static bool IsActiveFungle => AddedTheFungle.GetBool() || Main.NormalOptions.MapId == 5;
+        public static bool IsActiveSkeld => AddedTheSkeld.GetBool() || TOHPlugin.NormalOptions.MapId == 0;
+        public static bool IsActiveMiraHQ => AddedMiraHQ.GetBool() || TOHPlugin.NormalOptions.MapId == 1;
+        public static bool IsActivePolus => AddedPolus.GetBool() || TOHPlugin.NormalOptions.MapId == 2;
+        public static bool IsActiveAirship => AddedTheAirShip.GetBool() || TOHPlugin.NormalOptions.MapId == 4;
+        public static bool IsActiveFungle => AddedTheFungle.GetBool() || TOHPlugin.NormalOptions.MapId == 5;
 
         // 役職数・確率
         public static Dictionary<CustomRoles, OptionItem> CustomRoleCounts;
@@ -75,7 +75,7 @@ namespace TownOfHost
 
         // 各役職の詳細設定
         public static OptionItem EnableGM;
-        public static float DefaultKillCooldown = Main.NormalOptions?.KillCooldown ?? 20;
+        public static float DefaultKillCooldown = TOHPlugin.NormalOptions?.KillCooldown ?? 20;
         public static OptionItem DoubleTriggerThreshold;
         public static OptionItem DefaultShapeshiftCooldown;
         public static OptionItem CanMakeMadmateCount;

@@ -110,7 +110,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
         InfectCount = InfectLimit;
 
         InfectActive = true;
-        if (Main.NormalOptions.MapId == 4)
+        if (TOHPlugin.NormalOptions.MapId == 4)
             //エアシップのリスポーン選択分固定で遅延させる
             InfectInactiveTime += 5f;
     }
@@ -195,7 +195,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
             //感染者の場合
             var changed = false;
             var inVent = player.inVent;
-            foreach (var target in Main.AllAlivePlayerControls)
+            foreach (var target in TOHPlugin.AllAlivePlayerControls)
             {
                 //ペスト医師は自身が感染できない場合は除外
                 if (!CanInfect(target)) continue;
@@ -262,7 +262,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
         if (!seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive()) return "";
         var str = new StringBuilder(40);
         str.Append($"<color={RoleInfo.RoleColorCode}>");
-        foreach (var player in Main.AllAlivePlayerControls)
+        foreach (var player in TOHPlugin.AllAlivePlayerControls)
         {
             if (!player.Is(CustomRoles.PlagueDoctor))
                 str.Append(GetInfectRateCharactor(player));
@@ -301,13 +301,13 @@ public sealed class PlagueDoctor : RoleBase, IKiller
         //だれかの勝利処理中なら無効
         if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
 
-        bool comprete = Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.PlagueDoctor) || IsInfected(p.PlayerId));
+        bool comprete = TOHPlugin.AllAlivePlayerControls.All(p => p.Is(CustomRoles.PlagueDoctor) || IsInfected(p.PlayerId));
 
         if (comprete)
         {
             InfectActive = false;
 
-            foreach (var player in Main.AllAlivePlayerControls)
+            foreach (var player in TOHPlugin.AllAlivePlayerControls)
             {
                 if (player.Is(CustomRoles.PlagueDoctor)) continue;
                 player.SetRealKiller(null);
@@ -317,7 +317,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
                 state.SetDead();
             }
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.PlagueDoctor);
-            foreach (var plagueDoctor in Main.AllPlayerControls.Where(p => p.Is(CustomRoles.PlagueDoctor)))
+            foreach (var plagueDoctor in TOHPlugin.AllPlayerControls.Where(p => p.Is(CustomRoles.PlagueDoctor)))
                 CustomWinnerHolder.WinnerIds.Add(plagueDoctor.PlayerId);
         }
     }

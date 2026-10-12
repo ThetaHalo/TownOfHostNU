@@ -87,8 +87,8 @@ namespace TownOfHost
                     {
                         Version version = Version.Parse(reader.ReadString());
                         string tag = reader.ReadString();
-                        string forkId = 3 <= version.Major ? reader.ReadString() : Main.OriginalForkId;
-                        Main.playerVersion[__instance.PlayerId] = new PlayerVersion(version, tag, forkId);
+                        string forkId = 3 <= version.Major ? reader.ReadString() : TOHPlugin.OriginalForkId;
+                        TOHPlugin.playerVersion[__instance.PlayerId] = new PlayerVersion(version, tag, forkId);
                     }
                     catch
                     {
@@ -130,10 +130,10 @@ namespace TownOfHost
                     NameColorManager.ReceiveRPC(reader);
                     break;
                 case CustomRPC.SetLoversPlayers:
-                    Main.LoversPlayers.Clear();
+                    TOHPlugin.LoversPlayers.Clear();
                     int count = reader.ReadInt32();
                     for (int i = 0; i < count; i++)
-                        Main.LoversPlayers.Add(Utils.GetPlayerById(reader.ReadByte()));
+                        TOHPlugin.LoversPlayers.Add(Utils.GetPlayerById(reader.ReadByte()));
                     break;
                 case CustomRPC.SetRealKiller:
                     byte targetId = reader.ReadByte();
@@ -179,11 +179,11 @@ namespace TownOfHost
         {
             while (PlayerControl.LocalPlayer == null) await Task.Delay(500);
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.VersionCheck, SendOption.Reliable);
-            writer.Write(Main.PluginVersion);
+            writer.Write(TOHPlugin.PluginVersion);
             writer.Write($"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})");
-            writer.Write(Main.ForkId);
+            writer.Write(TOHPlugin.ForkId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
-            Main.playerVersion[PlayerControl.LocalPlayer.PlayerId] = new PlayerVersion(Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
+            TOHPlugin.playerVersion[PlayerControl.LocalPlayer.PlayerId] = new PlayerVersion(TOHPlugin.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", TOHPlugin.ForkId);
         }
         public static void SendDeathReason(byte playerId, CustomDeathReason deathReason)
         {
@@ -254,8 +254,8 @@ namespace TownOfHost
         {
             if (!AmongUsClient.Instance.AmHost) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLoversPlayers, Hazel.SendOption.Reliable, -1);
-            writer.Write(Main.LoversPlayers.Count);
-            foreach (var lp in Main.LoversPlayers)
+            writer.Write(TOHPlugin.LoversPlayers.Count);
+            foreach (var lp in TOHPlugin.LoversPlayers)
             {
                 writer.Write(lp.PlayerId);
             }
@@ -263,14 +263,13 @@ namespace TownOfHost
         }
         public static void SendRpcLogger(uint targetNetId, byte callId, int targetClientId = -1)
         {
-            if (!DebugModeManager.AmDebugger) return;
             string rpcName = GetRpcName(callId);
             string from = targetNetId.ToString();
             string target = targetClientId.ToString();
             try
             {
                 target = targetClientId < 0 ? "All" : AmongUsClient.Instance.GetClient(targetClientId).PlayerName;
-                from = Main.AllPlayerControls.Where(c => c.NetId == targetNetId).FirstOrDefault()?.Data?.PlayerName;
+                from = TOHPlugin.AllPlayerControls.Where(c => c.NetId == targetNetId).FirstOrDefault()?.Data?.PlayerName;
             }
             catch { }
             Logger.Info($"FromNetID:{targetNetId}({from}) TargetClientID:{targetClientId}({target}) CallID:{callId}({rpcName})", "SendRPC");

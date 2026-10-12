@@ -14,14 +14,14 @@ using TownOfHost.Attributes;
 using TownOfHost.Roles.Core;
 using TownOfHost.Modules;
 
-[assembly: AssemblyFileVersionAttribute(TownOfHost.Main.PluginVersion)]
-[assembly: AssemblyInformationalVersionAttribute(TownOfHost.Main.PluginVersion)]
+[assembly: AssemblyFileVersionAttribute(TownOfHost.TOHPlugin.PluginVersion)]
+[assembly: AssemblyInformationalVersionAttribute(TownOfHost.TOHPlugin.PluginVersion)]
 namespace TownOfHost
 {
     [BepInPlugin(PluginGuid, "Town Of Host", PluginVersion)]
     [BepInIncompatibility("jp.ykundesu.supernewroles")]
     [BepInProcess("Among Us.exe")]
-    public class Main : BasePlugin
+    public class TOHPlugin : BasePlugin
     {
         // == プログラム設定 / Program Config ==
         // modの名前 / Mod Name (Default: Town Of Host)
@@ -58,6 +58,11 @@ namespace TownOfHost
         public static readonly bool IsPublicAvailableOnThisVersion = false;
         // プレリリースかどうか
         public static bool IsPrerelease { get; } = false;
+
+        public static string BasePath => OperatingSystem.IsAndroid()
+            ? Environment.GetEnvironmentVariable("STAR_DATA_PATH")! + "/TownOfHost"
+            : Paths.GameRootPath;
+
         public Harmony Harmony { get; } = new Harmony(PluginGuid);
         public static Version version = Version.Parse(PluginVersion);
         public static Color UnityModColor
@@ -142,7 +147,7 @@ namespace TownOfHost
         public static IEnumerable<PlayerControl> AllPlayerControls => PlayerControl.AllPlayerControls.ToArray().Where(p => p != null);
         public static IEnumerable<PlayerControl> AllAlivePlayerControls => PlayerControl.AllPlayerControls.ToArray().Where(p => p != null && p.IsAlive());
 
-        public static Main Instance;
+        public static TOHPlugin Instance;
 
         public override void Load()
         {
@@ -158,11 +163,6 @@ namespace TownOfHost
 
             Logger = BepInEx.Logging.Logger.CreateLogSource("TownOfHost");
             TownOfHost.Logger.Enable();
-            TownOfHost.Logger.Disable("NotifyRoles");
-            TownOfHost.Logger.Disable("SendRPC");
-            TownOfHost.Logger.Disable("ReceiveRPC");
-            TownOfHost.Logger.Disable("SwitchSystem");
-            TownOfHost.Logger.Disable("CustomRpcSender");
             //TownOfHost.Logger.isDetail = true;
 
             // 認証関連-初期化
@@ -246,7 +246,21 @@ namespace TownOfHost
 
             SystemEnvironment.SetEnvironmentVariables();
 
-            Harmony.PatchAll();
+            foreach (var patchType in AccessTools.GetTypesFromAssembly(typeof(TOHPlugin).Assembly))
+            {
+                try
+                {
+                    Harmony.CreateClassProcessor(patchType).Patch();
+                    Logger.LogInfo($"Harmony patched class {patchType.FullName}");
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Harmony failed while processing patch class {patchType.FullName}");
+                    Logger.LogError(ex);
+                    throw;
+                }
+            }
+
             Application.quitting += new Action(Utils.SaveNowLog);
         }
     }

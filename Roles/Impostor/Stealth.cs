@@ -80,7 +80,7 @@ public sealed class Stealth : RoleBase, IImpostor
         var roomArea = room.roomArea;
         var roomName = room.RoomId;
         RpcDarken(roomName);
-        return Main.AllAlivePlayerControls.Where(player => player != Player && player.Collider.IsTouching(roomArea));
+        return TOHPlugin.AllAlivePlayerControls.Where(player => player != Player && player.Collider.IsTouching(roomArea));
     }
     /// <summary>渡されたプレイヤーを<see cref="darkenDuration"/>秒分視界ゼロにする</summary>
     private void DarkenPlayers(IEnumerable<PlayerControl> playersToDarken)

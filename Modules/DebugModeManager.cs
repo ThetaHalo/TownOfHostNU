@@ -29,9 +29,9 @@ namespace TownOfHost
                 .SetHidden(!AmDebugger)
                 .RegisterUpdateValueEvent((obj, args) =>
                 {
-                    if (DestroyableSingleton<GameStartManager>.InstanceExists && Main.NormalOptions.NumImpostors == 0 && AmongUsClient.Instance.AmHost && !EnableDebugMode.GetBool())
+                    if (DestroyableSingleton<GameStartManager>.InstanceExists && TOHPlugin.NormalOptions.NumImpostors == 0 && AmongUsClient.Instance.AmHost && !EnableDebugMode.GetBool())
                     {
-                        Main.NormalOptions.NumImpostors = 1;
+                        TOHPlugin.NormalOptions.NumImpostors = 1;
                     }
                 });
         }

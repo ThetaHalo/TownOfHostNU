@@ -68,7 +68,7 @@ public class ClientActionItem
                 ModOptionsButton.transform.localPosition = leaveButton?.transform?.localPosition ?? new(0f, -2.4f, 1f);
                 ModOptionsButton.name = "TOHOptions";
                 ModOptionsButton.Text.text = Translator.GetString("TOHOptions");
-                if (ColorUtility.TryParseHtmlString(Main.ModColor, out var modColor))
+                if (ColorUtility.TryParseHtmlString(TOHPlugin.ModColor, out var modColor))
                 {
                     ModOptionsButton.Background.color = modColor;
                 }

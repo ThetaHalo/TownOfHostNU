@@ -93,7 +93,7 @@ public sealed class FireWorks : RoleBase, IImpostor
                 FireWorksPosition.Add(Player.transform.position);
                 NowFireWorksCount--;
                 if (NowFireWorksCount == 0)
-                    State = Main.AliveImpostorCount <= 1 ? FireWorksState.ReadyFire : FireWorksState.WaitTime;
+                    State = TOHPlugin.AliveImpostorCount <= 1 ? FireWorksState.ReadyFire : FireWorksState.WaitTime;
                 else
                     State = FireWorksState.SettingFireWorks;
                 break;
@@ -103,7 +103,7 @@ public sealed class FireWorks : RoleBase, IImpostor
                 {
                     //爆破処理はホストのみ
                     bool suicide = false;
-                    foreach (var fireTarget in Main.AllAlivePlayerControls)
+                    foreach (var fireTarget in TOHPlugin.AllAlivePlayerControls)
                     {
                         foreach (var pos in FireWorksPosition)
                         {
@@ -125,7 +125,7 @@ public sealed class FireWorks : RoleBase, IImpostor
                     }
                     if (suicide)
                     {
-                        var totalAlive = Main.AllAlivePlayerControls.Count();
+                        var totalAlive = TOHPlugin.AllAlivePlayerControls.Count();
                         //自分が最後の生き残りの場合は勝利のために死なない
                         if (totalAlive != 1)
                         {
@@ -147,7 +147,7 @@ public sealed class FireWorks : RoleBase, IImpostor
     {
         string retText = "";
 
-        if (State == FireWorksState.WaitTime && Main.AliveImpostorCount <= 1)
+        if (State == FireWorksState.WaitTime && TOHPlugin.AliveImpostorCount <= 1)
         {
             Logger.Info("爆破準備OK", "FireWorks");
             State = FireWorksState.ReadyFire;

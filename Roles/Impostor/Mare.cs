@@ -63,12 +63,12 @@ public sealed class Mare : RoleBase, IImpostor
         if (IsActivateKill && !IsAccelerated)
         { //停電中で加速済みでない場合
             IsAccelerated = true;
-            Main.AllPlayerSpeed[Player.PlayerId] += SpeedInLightsOut;//Mareの速度を加算
+            TOHPlugin.AllPlayerSpeed[Player.PlayerId] += SpeedInLightsOut;//Mareの速度を加算
         }
         else if (!IsActivateKill && IsAccelerated)
         { //停電中ではなく加速済みになっている場合
             IsAccelerated = false;
-            Main.AllPlayerSpeed[Player.PlayerId] -= SpeedInLightsOut;//Mareの速度を減算
+            TOHPlugin.AllPlayerSpeed[Player.PlayerId] -= SpeedInLightsOut;//Mareの速度を減算
         }
     }
     private void ActivateKill(bool activate)

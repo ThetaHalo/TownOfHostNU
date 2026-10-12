@@ -49,7 +49,7 @@ namespace TownOfHost
             tohSettingsButton.buttonText.text = GetString("TOHSettingsButtonLabel");
             var activeSprite = tohSettingsButton.activeSprites.GetComponent<SpriteRenderer>();
             var selectedSprite = tohSettingsButton.selectedSprites.GetComponent<SpriteRenderer>();
-            activeSprite.color = selectedSprite.color = Main.UnityModColor;
+            activeSprite.color = selectedSprite.color = TOHPlugin.UnityModColor;
             tohSettingsButton.OnClick.AddListener((Action)(() =>
             {
                 __instance.ChangeTab(-1, false);  // バニラタブを閉じる

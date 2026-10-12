@@ -100,7 +100,7 @@ public class MeetingVoteManager
     /// </summary>
     public void CheckAndEndMeeting()
     {
-        if (meetingHud.discussionTimer - (float)Main.NormalOptions.DiscussionTime >= Main.NormalOptions.VotingTime || AllVotes.Values.All(vote => vote.HasVoted))
+        if (meetingHud.discussionTimer - (float)TOHPlugin.NormalOptions.DiscussionTime >= TOHPlugin.NormalOptions.VotingTime || AllVotes.Values.All(vote => vote.HasVoted))
         {
             EndMeeting();
         }

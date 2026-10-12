@@ -107,7 +107,7 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             var rnd = IRandom.Instance;
             var candidates = new List<PlayerControl>();
-            var validPlayers = Main.AllPlayerControls.Where(pc => ValidRoles.Contains(pc.GetCustomRole()));
+            var validPlayers = TOHPlugin.AllPlayerControls.Where(pc => ValidRoles.Contains(pc.GetCustomRole()));
 
             if (data.CrewmateMaximum != null)
             {

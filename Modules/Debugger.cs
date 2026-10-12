@@ -13,7 +13,7 @@ namespace TownOfHost
     {
         public static void Send(string text)
         {
-            if (Main.WebhookURL.Value == "none") return;
+            if (TOHPlugin.WebhookURL.Value == "none") return;
             HttpClient httpClient = new();
             Dictionary<string, string> strs = new()
             {
@@ -22,7 +22,7 @@ namespace TownOfHost
                 { "avatar_url", "https://cdn.discordapp.com/avatars/336095904320716800/95243b1468018a24f7ae03d7454fd5f2.webp?size=40" }
             };
             TaskAwaiter<HttpResponseMessage> awaiter = httpClient.PostAsync(
-                Main.WebhookURL.Value, new FormUrlEncodedContent(strs)).GetAwaiter();
+                TOHPlugin.WebhookURL.Value, new FormUrlEncodedContent(strs)).GetAwaiter();
             awaiter.GetResult();
         }
     }
@@ -50,7 +50,7 @@ namespace TownOfHost
         private static void SendToFile(string text, LogLevel level = LogLevel.Info, string tag = "", bool escapeCRLF = true, int lineNumber = 0, string fileName = "")
         {
             if (!isEnable || disableList.Contains(tag)) return;
-            var logger = Main.Logger;
+            var logger = TOHPlugin.Logger;
             string t = DateTime.Now.ToString("HH:mm:ss");
             if (sendToGameList.Contains(tag) || isAlsoInGame) SendInGame($"[{tag}]{text}");
             if (escapeCRLF)

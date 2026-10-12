@@ -37,9 +37,9 @@ namespace TownOfHost
                 HideName.gameObject.SetActive(true);
                 HideName.name = "HideName";
                 HideName.color =
-                    ColorUtility.TryParseHtmlString(Main.HideColor.Value, out var color) ? color :
-                    ColorUtility.TryParseHtmlString(Main.ModColor, out var modColor) ? modColor : HideName.color;
-                HideName.text = Main.HideName.Value;
+                    ColorUtility.TryParseHtmlString(TOHPlugin.HideColor.Value, out var color) ? color :
+                    ColorUtility.TryParseHtmlString(TOHPlugin.ModColor, out var modColor) ? modColor : HideName.color;
+                HideName.text = TOHPlugin.HideName.Value;
 
                 warningText = Object.Instantiate(__instance.GameStartText, __instance.transform);
                 warningText.name = "WarningText";
@@ -77,12 +77,12 @@ namespace TownOfHost
 
                 if (!AmongUsClient.Instance.AmHost) return;
 
-                if (Main.NormalOptions.KillCooldown == 0f)
-                    Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
+                if (TOHPlugin.NormalOptions.KillCooldown == 0f)
+                    TOHPlugin.NormalOptions.KillCooldown = TOHPlugin.LastKillCooldown.Value;
 
-                AURoleOptions.SetOpt(Main.NormalOptions.Cast<IGameOptions>());
+                AURoleOptions.SetOpt(TOHPlugin.NormalOptions.Cast<IGameOptions>());
                 if (AURoleOptions.ShapeshifterCooldown == 0f)
-                    AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
+                    AURoleOptions.ShapeshifterCooldown = TOHPlugin.LastShapeshifterCooldown.Value;
             }
         }
 
@@ -128,7 +128,7 @@ namespace TownOfHost
                     if (!canStartGame)
                     {
                         __instance.StartButton.gameObject.SetActive(false);
-                        warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.MismatchedVersion"), String.Join(" ", mismatchedPlayerNameList), $"<color={Main.ModColor}>{Main.ModName}</color>"));
+                        warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.MismatchedVersion"), String.Join(" ", mismatchedPlayerNameList), $"<color={TOHPlugin.ModColor}>{TOHPlugin.ModName}</color>"));
                     }
                     cancelButton.gameObject.SetActive(__instance.startState == GameStartManager.StartingStates.Countdown);
                 }
@@ -146,7 +146,7 @@ namespace TownOfHost
                             SceneChanger.ChangeScene("MainMenu");
                         }
 
-                        warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.AutoExitAtMismatchedVersion"), $"<color={Main.ModColor}>{Main.ModName}</color>", Math.Round(10 - exitTimer).ToString()));
+                        warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.AutoExitAtMismatchedVersion"), $"<color={TOHPlugin.ModColor}>{TOHPlugin.ModName}</color>", Math.Round(10 - exitTimer).ToString()));
                     }
                 }
                 if (warningMessage == "")
@@ -177,9 +177,9 @@ namespace TownOfHost
             }
             private static bool MatchVersions(byte playerId, bool acceptVanilla = false)
             {
-                if (!Main.playerVersion.TryGetValue(playerId, out var version)) return acceptVanilla;
-                return Main.ForkId == version.forkId
-                    && Main.version.CompareTo(version.version) == 0
+                if (!TOHPlugin.playerVersion.TryGetValue(playerId, out var version)) return acceptVanilla;
+                return TOHPlugin.ForkId == version.forkId
+                    && TOHPlugin.version.CompareTo(version.version) == 0
                     && version.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})";
             }
         }
@@ -191,7 +191,7 @@ namespace TownOfHost
             {
                 SelectRandomMap();
 
-                var invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId);
+                var invalidColor = TOHPlugin.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId);
                 if (invalidColor.Any())
                 {
                     var msg = GetString("Error.InvalidColor");
@@ -203,13 +203,13 @@ namespace TownOfHost
 
                 RoleAssignManager.CheckRoleCount();
 
-                Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
-                Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
-                Main.NormalOptions.KillCooldown = 0f;
+                Options.DefaultKillCooldown = TOHPlugin.NormalOptions.KillCooldown;
+                TOHPlugin.LastKillCooldown.Value = TOHPlugin.NormalOptions.KillCooldown;
+                TOHPlugin.NormalOptions.KillCooldown = 0f;
 
-                var opt = Main.NormalOptions.Cast<IGameOptions>();
+                var opt = TOHPlugin.NormalOptions.Cast<IGameOptions>();
                 AURoleOptions.SetOpt(opt);
-                Main.LastShapeshifterCooldown.Value = AURoleOptions.ShapeshifterCooldown;
+                TOHPlugin.LastShapeshifterCooldown.Value = AURoleOptions.ShapeshifterCooldown;
                 AURoleOptions.ShapeshifterCooldown = 0f;
 
                 PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(opt, AprilFoolsMode.IsAprilFoolsModeToggledOn));
@@ -238,7 +238,7 @@ namespace TownOfHost
 
                     if (randomMaps.Count <= 0) return;
                     var mapsId = randomMaps[rand.Next(randomMaps.Count)];
-                    Main.NormalOptions.MapId = mapsId;
+                    TOHPlugin.NormalOptions.MapId = mapsId;
                 }
             }
         }
@@ -250,7 +250,7 @@ namespace TownOfHost
             {
                 if (GameStates.IsCountDown)
                 {
-                    Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
+                    TOHPlugin.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
                     PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(GameOptionsManager.Instance.CurrentGameOptions, AprilFoolsMode.IsAprilFoolsModeToggledOn));
                 }
             }
@@ -271,7 +271,7 @@ namespace TownOfHost
     {
         public static bool Prefix(ref int __result)
         {
-            __result = Main.NormalOptions.NumImpostors;
+            __result = TOHPlugin.NormalOptions.NumImpostors;
             return false;
         }
     }

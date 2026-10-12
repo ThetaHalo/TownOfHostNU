@@ -6,7 +6,7 @@ namespace TownOfHost.Modules;
 
 public static class OptionSaver
 {
-    private static readonly DirectoryInfo SaveDataDirectoryInfo = new("./TOH_DATA/SaveData/");
+    private static readonly DirectoryInfo SaveDataDirectoryInfo = new($"{TOHPlugin.BasePath}/TOH_DATA/SaveData/");
     private static readonly FileInfo OptionSaverFileInfo = new($"{SaveDataDirectoryInfo.FullName}/Options.json");
     private static readonly LogHandler logger = Logger.Handler(nameof(OptionSaver));
 

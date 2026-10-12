@@ -121,9 +121,9 @@ namespace TownOfHost
         }
         public static void RpcSetNameEx(this PlayerControl player, string name)
         {
-            foreach (var seer in Main.AllPlayerControls)
+            foreach (var seer in TOHPlugin.AllPlayerControls)
             {
-                Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
+                TOHPlugin.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
             }
             HudManagerPatch.LastSetNameDesyncCount++;
 
@@ -137,12 +137,12 @@ namespace TownOfHost
             //seer: 上の変更を確認することができるプレイヤー
             if (player == null || name == null || !AmongUsClient.Instance.AmHost) return;
             if (seer == null) seer = player;
-            if (!force && Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name)
+            if (!force && TOHPlugin.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name)
             {
                 //Logger.info($"Cancel:{player.name}:{name} for {seer.name}", "RpcSetNamePrivate");
                 return;
             }
-            Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
+            TOHPlugin.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
             HudManagerPatch.LastSetNameDesyncCount++;
             Logger.Info($"Set:{player?.Data?.PlayerName}:{name} for {seer.GetNameWithRole()}", "RpcSetNamePrivate");
 
@@ -176,11 +176,11 @@ namespace TownOfHost
             if (!player.CanUseKillButton()) return;
             if (time >= 0f)
             {
-                Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
+                TOHPlugin.AllPlayerKillCooldown[player.PlayerId] = time * 2;
             }
             else
             {
-                Main.AllPlayerKillCooldown[player.PlayerId] *= 2;
+                TOHPlugin.AllPlayerKillCooldown[player.PlayerId] *= 2;
             }
             player.SyncSettings();
             player.RpcProtectedMurderPlayer();
@@ -256,7 +256,7 @@ namespace TownOfHost
         public static void RpcSpecificRejectShapeshift(this PlayerControl player, PlayerControl target, bool shouldAnimate)
         {
             if (!AmongUsClient.Instance.AmHost) return;
-            foreach (var seer in Main.AllPlayerControls)
+            foreach (var seer in TOHPlugin.AllPlayerControls)
             {
                 if (seer != player)
                 {
@@ -367,7 +367,7 @@ namespace TownOfHost
             _ = new LateTask(() =>
             {
                 pc.RpcDesyncUpdateSystem(systemtypes, 16);
-                if (Main.NormalOptions.MapId == 4) //Airship用
+                if (TOHPlugin.NormalOptions.MapId == 4) //Airship用
                     pc.RpcDesyncUpdateSystem(systemtypes, 17);
             }, 0.4f + delay, "Fix Desync Reactor");
         }
@@ -385,7 +385,7 @@ namespace TownOfHost
             {
                 pc.RpcDesyncUpdateSystem(systemtypes, 16);
 
-                if (Main.NormalOptions.MapId == 4) //Airship用
+                if (TOHPlugin.NormalOptions.MapId == 4) //Airship用
                     pc.RpcDesyncUpdateSystem(systemtypes, 17);
             }, FlashDuration + delay, "Fix Desync Reactor");
         }
@@ -418,14 +418,14 @@ namespace TownOfHost
         }
         public static void ResetKillCooldown(this PlayerControl player)
         {
-            Main.AllPlayerKillCooldown[player.PlayerId] = (player.GetRoleClass() as IKiller)?.CalculateKillCooldown() ?? Options.DefaultKillCooldown; //キルクールをデフォルトキルクールに変更
+            TOHPlugin.AllPlayerKillCooldown[player.PlayerId] = (player.GetRoleClass() as IKiller)?.CalculateKillCooldown() ?? Options.DefaultKillCooldown; //キルクールをデフォルトキルクールに変更
             if (player.PlayerId == LastImpostor.currentId)
                 LastImpostor.SetKillCooldown();
         }
         public static bool CanMakeMadmate(this PlayerControl player)
         {
             if (
-                Options.CanMakeMadmateCount.GetInt() <= Main.SKMadmateNowCount ||
+                Options.CanMakeMadmateCount.GetInt() <= TOHPlugin.SKMadmateNowCount ||
                 player == null ||
                 player.Data.Role.Role != RoleTypes.Shapeshifter)
             {
@@ -492,7 +492,7 @@ namespace TownOfHost
             DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
             reporter.RpcStartMeeting(target);
         }
-        public static bool IsModClient(this PlayerControl player) => Main.playerVersion.ContainsKey(player.PlayerId);
+        public static bool IsModClient(this PlayerControl player) => TOHPlugin.playerVersion.ContainsKey(player.PlayerId);
         ///<summary>
         ///プレイヤーのRoleBehaviourのGetPlayersInAbilityRangeSortedを実行し、戻り値を返します。
         ///</summary>

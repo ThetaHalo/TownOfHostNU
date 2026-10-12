@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 
 using HarmonyLib;
+using InnerNet;
 using UnityEngine;
 
 using TownOfHost.Modules;
@@ -30,7 +31,7 @@ public static class MeetingHudPatch
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CastVote))]
     public static class CastVotePatch
     {
-        public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId /* 投票した人 */ , [HarmonyArgument(1)] byte suspectPlayerId /* 投票された人 */ )
+        public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] PlayerId srcPlayerId /* 投票した人 */ , [HarmonyArgument(1)] PlayerId suspectPlayerId /* 投票された人 */ )
         {
             var voter = Utils.GetPlayerById(srcPlayerId);
             var voted = Utils.GetPlayerById(suspectPlayerId);
@@ -53,7 +54,7 @@ public static class MeetingHudPatch
             Logger.Info("------------会議開始------------", "Phase");
             ChatUpdatePatch.DoBlockChat = true;
             GameStates.AlreadyDied |= !Utils.IsAllAlive;
-            Main.AllPlayerControls.Do(x => ReportDeadBodyPatch.WaitReport[x.PlayerId].Clear());
+            TOHPlugin.AllPlayerControls.Do(x => ReportDeadBodyPatch.WaitReport[x.PlayerId].Clear());
             MeetingStates.MeetingCalled = true;
         }
         public static void Postfix(MeetingHud __instance)
@@ -106,13 +107,13 @@ public static class MeetingHudPatch
             {
                 _ = new LateTask(() =>
                 {
-                    foreach (var seer in Main.AllPlayerControls)
+                    foreach (var seer in TOHPlugin.AllPlayerControls)
                     {
                         if (seer.IsModClient()) continue;
                         var sender = CustomRpcSender.Create("SetNameToChat", Hazel.SendOption.Reliable);
                         sender.StartMessage(seer.GetClientId());
 
-                        foreach (var seen in Main.AllPlayerControls)
+                        foreach (var seen in TOHPlugin.AllPlayerControls)
                         {
                             var seenName = seen.GetRealName(isMeeting: true);
                             var coloredName = Utils.ColorString(seen.GetRoleColor(), seenName);
@@ -207,7 +208,7 @@ public static class MeetingHudPatch
     {
         var AddedIdList = new List<byte>();
         foreach (var playerId in playerIds)
-            if (Main.AfterMeetingDeathPlayers.TryAdd(playerId, deathReason))
+            if (TOHPlugin.AfterMeetingDeathPlayers.TryAdd(playerId, deathReason))
                 AddedIdList.Add(playerId);
         CheckForDeathOnExile(deathReason, AddedIdList.ToArray());
     }
@@ -216,7 +217,7 @@ public static class MeetingHudPatch
         foreach (var playerId in playerIds)
         {
             //Loversの後追い
-            if (CustomRoles.Lovers.IsPresent() && !Main.isLoversDead && Main.LoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
+            if (CustomRoles.Lovers.IsPresent() && !TOHPlugin.isLoversDead && TOHPlugin.LoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
                 FixedUpdatePatch.LoversSuicide(playerId, true);
             //道連れチェック
             RevengeOnExile(playerId, deathReason);
@@ -242,7 +243,7 @@ public static class MeetingHudPatch
             {
                 return null;
             }
-            TargetList = Main.AllAlivePlayerControls.Where(candidate => candidate != exiledplayer && !Main.AfterMeetingDeathPlayers.ContainsKey(candidate.PlayerId) && nekomata.IsCandidate(candidate)).ToList();
+            TargetList = TOHPlugin.AllAlivePlayerControls.Where(candidate => candidate != exiledplayer && !TOHPlugin.AfterMeetingDeathPlayers.ContainsKey(candidate.PlayerId) && nekomata.IsCandidate(candidate)).ToList();
         }
         else
         {
@@ -250,9 +251,9 @@ public static class MeetingHudPatch
     exiledplayer.Is(CustomRoleTypes.Madmate) ||
     // マッド属性化時に削除
     (exiledplayer.GetRoleClass() is SchrodingerCat schrodingerCat && schrodingerCat.AmMadmate);
-            foreach (var candidate in Main.AllAlivePlayerControls)
+            foreach (var candidate in TOHPlugin.AllAlivePlayerControls)
             {
-                if (candidate == exiledplayer || Main.AfterMeetingDeathPlayers.ContainsKey(candidate.PlayerId)) continue;
+                if (candidate == exiledplayer || TOHPlugin.AfterMeetingDeathPlayers.ContainsKey(candidate.PlayerId)) continue;
                 switch (exiledplayer.GetCustomRole())
                 {
                     // ここにINekomata未適用の道連れ役職を追加

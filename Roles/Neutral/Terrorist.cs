@@ -81,7 +81,7 @@ public sealed class Terrorist : RoleBase
     }
     public void Win()
     {
-        foreach (var otherPlayer in Main.AllAlivePlayerControls)
+        foreach (var otherPlayer in TOHPlugin.AllAlivePlayerControls)
         {
             if (otherPlayer.Is(CustomRoles.Terrorist))
             {

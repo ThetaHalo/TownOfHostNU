@@ -272,14 +272,14 @@ namespace TownOfHost
             var targetClientId = seer == null ? -1 : seer.GetClientId();
             if (seer == null)
             {
-                foreach (var seer2 in Main.AllPlayerControls)
+                foreach (var seer2 in TOHPlugin.AllPlayerControls)
                 {
-                    Main.LastNotifyNames[(player.PlayerId, seer2.PlayerId)] = name;
+                    TOHPlugin.LastNotifyNames[(player.PlayerId, seer2.PlayerId)] = name;
                 }
             }
             else
             {
-                Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
+                TOHPlugin.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
             }
             sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, targetClientId)
                 .Write(player.Data.NetId)

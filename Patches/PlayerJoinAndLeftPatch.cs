@@ -20,7 +20,7 @@ namespace TownOfHost
         {
             while (!Options.IsLoaded) System.Threading.Tasks.Task.Delay(1);
             Logger.Info($"{__instance.GameId}に参加", "OnGameJoined");
-            Main.playerVersion = new Dictionary<byte, PlayerVersion>();
+            TOHPlugin.playerVersion = new Dictionary<byte, PlayerVersion>();
             RPC.RpcVersionCheck();
             SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
 
@@ -29,12 +29,12 @@ namespace TownOfHost
             ErrorText.Instance.Clear();
             if (AmongUsClient.Instance.AmHost) //以下、ホストのみ実行
             {
-                if (Main.NormalOptions.KillCooldown == 0f)
-                    Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
+                if (TOHPlugin.NormalOptions.KillCooldown == 0f)
+                    TOHPlugin.NormalOptions.KillCooldown = TOHPlugin.LastKillCooldown.Value;
 
-                AURoleOptions.SetOpt(Main.NormalOptions.Cast<IGameOptions>());
+                AURoleOptions.SetOpt(TOHPlugin.NormalOptions.Cast<IGameOptions>());
                 if (AURoleOptions.ShapeshifterCooldown == 0f)
-                    AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
+                    AURoleOptions.ShapeshifterCooldown = TOHPlugin.LastShapeshifterCooldown.Value;
             }
         }
     }
@@ -107,10 +107,10 @@ namespace TownOfHost
                     if (GameStates.IsInGame)
                     {
                         if (data.Character.Is(CustomRoles.Lovers) && !data.Character.Data.IsDead)
-                            foreach (var lovers in Main.LoversPlayers.ToArray())
+                            foreach (var lovers in TOHPlugin.LoversPlayers.ToArray())
                             {
-                                Main.isLoversDead = true;
-                                Main.LoversPlayers.Remove(lovers);
+                                TOHPlugin.isLoversDead = true;
+                                TOHPlugin.LoversPlayers.Remove(lovers);
                                 PlayerState.GetByPlayerId(lovers.PlayerId).RemoveSubRole(CustomRoles.Lovers);
                             }
                         var state = PlayerState.GetByPlayerId(data.Character.PlayerId);
@@ -122,7 +122,7 @@ namespace TownOfHost
                         AntiBlackout.OnDisconnect(data.Character.Data);
                         PlayerGameOptionsSender.RemoveSender(data.Character);
                     }
-                    Main.playerVersion.Remove(data.Character.PlayerId);
+                    TOHPlugin.playerVersion.Remove(data.Character.PlayerId);
                     Logger.Info($"{data.PlayerName}(ClientID:{data.Id})が切断(理由:{reason}, ping:{AmongUsClient.Instance.Ping})", "Session");
                 }
             }
@@ -153,24 +153,24 @@ namespace TownOfHost
                     if (client.Character == null) return;
                     TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true);
                 }, 3f, "Welcome Message");
-                if (Options.AutoDisplayLastResult.GetBool() && PlayerState.AllPlayerStates.Count != 0 && Main.clientIdList.Contains(client.Id))
+                if (Options.AutoDisplayLastResult.GetBool() && PlayerState.AllPlayerStates.Count != 0 && TOHPlugin.clientIdList.Contains(client.Id))
                 {
                     _ = new LateTask(() =>
                     {
                         if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
                         {
-                            Main.isChatCommand = true;
+                            TOHPlugin.isChatCommand = true;
                             Utils.ShowLastResult(client.Character.PlayerId);
                         }
                     }, 3f, "DisplayLastRoles");
                 }
-                if (Options.AutoDisplayKillLog.GetBool() && PlayerState.AllPlayerStates.Count != 0 && Main.clientIdList.Contains(client.Id))
+                if (Options.AutoDisplayKillLog.GetBool() && PlayerState.AllPlayerStates.Count != 0 && TOHPlugin.clientIdList.Contains(client.Id))
                 {
                     _ = new LateTask(() =>
                     {
                         if (!GameStates.IsInGame && client.Character != null)
                         {
-                            Main.isChatCommand = true;
+                            TOHPlugin.isChatCommand = true;
                             Utils.ShowKillLog(client.Character.PlayerId);
                         }
                     }, 3f, "DisplayKillLog");

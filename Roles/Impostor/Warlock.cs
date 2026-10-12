@@ -94,7 +94,7 @@ public sealed class Warlock : RoleBase, IImpostor
                 Vector2 cpPos = CursedPlayer.transform.position;
                 Dictionary<PlayerControl, float> candidateList = new();
                 float distance;
-                foreach (PlayerControl candidatePC in Main.AllAlivePlayerControls)
+                foreach (PlayerControl candidatePC in TOHPlugin.AllAlivePlayerControls)
                 {
                     if (candidatePC != CursedPlayer)
                     {

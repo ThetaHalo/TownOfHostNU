@@ -121,7 +121,7 @@ namespace TownOfHost.Roles.Impostor
 
             if (canSeeImpostorAbilities)
             {
-                foreach (var impostor in Main.AllPlayerControls)
+                foreach (var impostor in TOHPlugin.AllPlayerControls)
                 {
                     if (seer == impostor || impostor.Is(CustomRoles.Insider) || !impostor.Is(CustomRoleTypes.Impostor)) continue;
                     mark.Append(impostor.GetRoleClass()?.GetMark(impostor, seen, isForMeeting));

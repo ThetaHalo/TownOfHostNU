@@ -43,7 +43,7 @@ namespace TownOfHost
                 }
 
                 sb.Clear();
-                sb.Append(Main.credentialsText);
+                sb.Append(TOHPlugin.credentialsText);
                 if (Options.NoGameEnd.GetBool()) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
                 if (Options.IsStandardHAS) sb.Append($"\r\n").Append(Utils.ColorString(Color.yellow, GetString("StandardHAS")));
                 if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("HideAndSeek")));
@@ -66,24 +66,24 @@ namespace TownOfHost
             static void Postfix(VersionShower __instance)
             {
                 TMPTemplate.SetBase(__instance.text);
-                Main.credentialsText = $"<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginVersion}";
-                if (Main.IsPrerelease)
+                TOHPlugin.credentialsText = $"<color={TOHPlugin.ModColor}>{TOHPlugin.ModName}</color> v{TOHPlugin.PluginVersion}";
+                if (TOHPlugin.IsPrerelease)
                 {
-                    Main.credentialsText += $"\r\n<#F39C12><size=120%>{GetString("Prerelease")}</size></color>";
+                    TOHPlugin.credentialsText += $"\r\n<#F39C12><size=120%>{GetString("Prerelease")}</size></color>";
                 }
 #if DEBUG
-                Main.credentialsText += $"\r\n<color={Main.ModColor}>{ThisAssembly.Git.Branch}({ThisAssembly.Git.Commit})</color>";
+                TOHPlugin.credentialsText += $"\r\n<color={TOHPlugin.ModColor}>{ThisAssembly.Git.Branch}({ThisAssembly.Git.Commit})</color>";
 #endif
                 var credentials = TMPTemplate.Create(
                     "TOHCredentialsText",
-                    Main.credentialsText,
+                    TOHPlugin.credentialsText,
                     fontSize: 2f,
                     alignment: TextAlignmentOptions.Right,
                     setActive: true);
                 credentials.transform.position = new Vector3(1f, 2.65f, -2f);
 
                 ErrorText.Create(__instance.text);
-                if (Main.hasArgumentException && ErrorText.Instance != null)
+                if (TOHPlugin.hasArgumentException && ErrorText.Instance != null)
                 {
                     ErrorText.Instance.AddError(ErrorCode.Main_DictionaryError);
                 }
@@ -113,15 +113,15 @@ namespace TownOfHost
                     SpecialEventText.enabled = TitleLogoPatch.amongUsLogo != null;
                     SpecialEventText.gameObject.SetActive(true);
                 }
-                if (Main.IsInitialRelease)
+                if (TOHPlugin.IsInitialRelease)
                 {
-                    SpecialEventText.text = $"Happy Birthday to {Main.ModName}!";
-                    if (ColorUtility.TryParseHtmlString(Main.ModColor, out var col))
+                    SpecialEventText.text = $"Happy Birthday to {TOHPlugin.ModName}!";
+                    if (ColorUtility.TryParseHtmlString(TOHPlugin.ModColor, out var col))
                     {
                         SpecialEventText.color = col;
                     }
                 }
-                if (Main.IsChristmas && CultureInfo.CurrentCulture.Name == "ja-JP")
+                if (TOHPlugin.IsChristmas && CultureInfo.CurrentCulture.Name == "ja-JP")
                 {
                     //このソースコ―ドを見た人へ。口外しないでもらえると嬉しいです...
                     //To anyone who has seen this source code. I would appreciate it if you would keep your mouth shut...

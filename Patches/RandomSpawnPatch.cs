@@ -83,7 +83,7 @@ namespace TownOfHost
                 {
                     return false;
                 }
-                if ((RpcCalls)callId == RpcCalls.SnapTo && (MapNames)Main.NormalOptions.MapId == MapNames.Airship)
+                if ((RpcCalls)callId == RpcCalls.SnapTo && (MapNames)TOHPlugin.NormalOptions.MapId == MapNames.Airship)
                 {
                     var player = __instance.myPlayer;
                     // プレイヤーがまだ湧いていない
@@ -182,10 +182,10 @@ namespace TownOfHost
             if (AmongUsClient.Instance.AmHost)
             {
                 //初期スポーンとリスポーンを判定
-                player.GetRoleClass()?.OnSpawn(Main.isFirstTurn);
+                player.GetRoleClass()?.OnSpawn(TOHPlugin.isFirstTurn);
                 player.SyncSettings();
                 player.RpcResetAbilityCooldown();
-                if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled) player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId]);
+                if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled) player.SetKillCooldown(TOHPlugin.AllPlayerKillCooldown[player.PlayerId]);
                 if (IsRandomSpawn())
                 {
                     new AirshipSpawnMap().RandomTeleport(player);
@@ -200,7 +200,7 @@ namespace TownOfHost
         public static bool IsRandomSpawn()
         {
             if (!Options.EnableRandomSpawn.GetBool()) return false;
-            switch (Main.NormalOptions.MapId)
+            switch (TOHPlugin.NormalOptions.MapId)
             {
                 case 0:
                     return Options.RandomSpawnSkeld.GetBool();
@@ -213,7 +213,7 @@ namespace TownOfHost
                 case 5:
                     return Options.RandomSpawnFungle.GetBool();
                 default:
-                    Logger.Error($"MapIdFailed ID:{Main.NormalOptions.MapId}", "IsRandomSpawn");
+                    Logger.Error($"MapIdFailed ID:{TOHPlugin.NormalOptions.MapId}", "IsRandomSpawn");
                     return false;
             }
         }

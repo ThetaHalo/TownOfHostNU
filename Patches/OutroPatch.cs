@@ -40,23 +40,23 @@ namespace TownOfHost
                 if (date == DateTime.MinValue) continue;
                 var killerId = kvp.Value.GetRealKiller();
                 var targetId = kvp.Key;
-                sb.Append($"\n{date:T} {Main.AllPlayerNames[targetId]}({Utils.GetTrueRoleName(targetId, false)}{Utils.GetSubRolesText(targetId)}) [{Utils.GetVitalText(kvp.Key)}]".RemoveHtmlTags());
+                sb.Append($"\n{date:T} {TOHPlugin.AllPlayerNames[targetId]}({Utils.GetTrueRoleName(targetId, false)}{Utils.GetSubRolesText(targetId)}) [{Utils.GetVitalText(kvp.Key)}]".RemoveHtmlTags());
                 if (killerId != byte.MaxValue && killerId != targetId)
-                    sb.Append($"\n\t\t⇐ {Main.AllPlayerNames[killerId]}({Utils.GetTrueRoleName(killerId, false)}{Utils.GetSubRolesText(killerId)})".RemoveHtmlTags());
+                    sb.Append($"\n\t\t⇐ {TOHPlugin.AllPlayerNames[killerId]}({Utils.GetTrueRoleName(killerId, false)}{Utils.GetSubRolesText(killerId)})".RemoveHtmlTags());
             }
             KillLog = sb.ToString();
 
-            Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
+            TOHPlugin.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
             //winnerListリセット
             EndGameResult.CachedWinners = new Il2CppSystem.Collections.Generic.List<CachedPlayerData>();
             var winner = new List<PlayerControl>();
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in TOHPlugin.AllPlayerControls)
             {
                 if (CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)) winner.Add(pc);
             }
             foreach (var team in CustomWinnerHolder.WinnerRoles)
             {
-                winner.AddRange(Main.AllPlayerControls.Where(p => p.Is(team) && !winner.Contains(p)));
+                winner.AddRange(TOHPlugin.AllPlayerControls.Where(p => p.Is(team) && !winner.Contains(p)));
             }
 
             //HideAndSeek専用
@@ -64,7 +64,7 @@ namespace TownOfHost
                 CustomWinnerHolder.WinnerTeam != CustomWinner.Draw && CustomWinnerHolder.WinnerTeam != CustomWinner.None)
             {
                 winner = new();
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (var pc in TOHPlugin.AllPlayerControls)
                 {
                     var role = PlayerState.GetByPlayerId(pc.PlayerId).MainRole;
                     if (role.GetCustomRoleTypes() == CustomRoleTypes.Impostor)
@@ -93,19 +93,19 @@ namespace TownOfHost
                     }
                 }
             }
-            Main.winnerList = new();
+            TOHPlugin.winnerList = new();
             foreach (var pc in winner)
             {
                 if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM)) continue;
 
                 EndGameResult.CachedWinners.Add(new CachedPlayerData(pc.Data));
-                Main.winnerList.Add(pc.PlayerId);
+                TOHPlugin.winnerList.Add(pc.PlayerId);
             }
 
-            Main.VisibleTasksCount = false;
+            TOHPlugin.VisibleTasksCount = false;
             if (AmongUsClient.Instance.AmHost)
             {
-                Main.RealOptionsData.Restore(GameOptionsManager.Instance.CurrentGameOptions);
+                TOHPlugin.RealOptionsData.Restore(GameOptionsManager.Instance.CurrentGameOptions);
                 GameOptionsSender.AllSenders.Clear();
                 GameOptionsSender.AllSenders.Add(new NormalGameOptionsSender());
                 /* Send SyncSettings RPC */
@@ -123,7 +123,7 @@ namespace TownOfHost
 
         public static void Postfix(EndGameManager __instance)
         {
-            if (!Main.playerVersion.ContainsKey(0)) return;
+            if (!TOHPlugin.playerVersion.ContainsKey(0)) return;
             //#######################################
             //          ==勝利陣営表示==
             //#######################################
@@ -202,7 +202,7 @@ namespace TownOfHost
             //           ==最終結果表示==
             //#######################################
 
-            var showInitially = Main.ShowResults.Value;
+            var showInitially = TOHPlugin.ShowResults.Value;
             showHideButton = new SimpleButton(
                __instance.transform,
                "ShowHideResultsButton",
@@ -213,7 +213,7 @@ namespace TownOfHost
                {
                    var setToActive = !roleSummary.gameObject.activeSelf;
                    roleSummary.gameObject.SetActive(setToActive);
-                   Main.ShowResults.Value = setToActive;
+                   TOHPlugin.ShowResults.Value = setToActive;
                    showHideButton.Label.text = GetString(setToActive ? "HideResults" : "ShowResults");
                },
                GetString(showInitially ? "HideResults" : "ShowResults"))
@@ -224,7 +224,7 @@ namespace TownOfHost
 
             StringBuilder sb = new($"{GetString("RoleSummaryText")}");
             List<byte> cloneRoles = new(PlayerState.AllPlayerStates.Keys);
-            foreach (var id in Main.winnerList)
+            foreach (var id in TOHPlugin.winnerList)
             {
                 sb.Append($"\n<color={CustomWinnerColor}>★</color> ").Append(EndGamePatch.SummaryText[id]);
                 cloneRoles.Remove(id);

@@ -22,7 +22,7 @@ namespace TownOfHost.Modules
             .ToList().ForEach(sender => sender.SetDirty());
 
         public override IGameOptions BasedGameOptions =>
-            Main.RealOptionsData.Restore(new NormalGameOptionsV12(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
+            TOHPlugin.RealOptionsData.Restore(new NormalGameOptionsV12(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
         public override bool IsDirty { get; protected set; }
 
         public PlayerControl player;
@@ -68,9 +68,9 @@ namespace TownOfHost.Modules
         }
         public override IGameOptions BuildGameOptions()
         {
-            if (Main.RealOptionsData == null)
+            if (TOHPlugin.RealOptionsData == null)
             {
-                Main.RealOptionsData = new OptionBackupData(GameOptionsManager.Instance.CurrentGameOptions);
+                TOHPlugin.RealOptionsData = new OptionBackupData(GameOptionsManager.Instance.CurrentGameOptions);
             }
 
             var opt = BasedGameOptions;
@@ -109,14 +109,14 @@ namespace TownOfHost.Modules
                         break;
                 }
             }
-            if (Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out var killCooldown))
+            if (TOHPlugin.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out var killCooldown))
             {
                 AURoleOptions.KillCooldown = Mathf.Max(0f, killCooldown);
             }
 
-            if (Main.AllPlayerSpeed.TryGetValue(player.PlayerId, out var speed))
+            if (TOHPlugin.AllPlayerSpeed.TryGetValue(player.PlayerId, out var speed))
             {
-                AURoleOptions.PlayerSpeedMod = Mathf.Clamp(speed, Main.MinSpeed, 3f);
+                AURoleOptions.PlayerSpeedMod = Mathf.Clamp(speed, TOHPlugin.MinSpeed, 3f);
             }
 
             state.taskState.hasTasks = Utils.HasTasks(player.Data, false);
@@ -138,7 +138,7 @@ namespace TownOfHost.Modules
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0f);
                 if (player.Is(CountTypes.Impostor))
                 {
-                    AURoleOptions.PlayerSpeedMod = Main.MinSpeed;
+                    AURoleOptions.PlayerSpeedMod = TOHPlugin.MinSpeed;
                 }
             }
             MeetingTimeManager.ApplyGameOptions(opt);
@@ -151,7 +151,7 @@ namespace TownOfHost.Modules
 
         public override bool AmValid()
         {
-            return base.AmValid() && player != null && !player.Data.Disconnected && Main.RealOptionsData != null;
+            return base.AmValid() && player != null && !player.Data.Disconnected && TOHPlugin.RealOptionsData != null;
         }
     }
 }

@@ -44,13 +44,13 @@ public sealed class Trapper : RoleBase
         if (info.IsSuicide) return;
 
         var killer = info.AttemptKiller;
-        var tmpSpeed = Main.AllPlayerSpeed[killer.PlayerId];
-        Main.AllPlayerSpeed[killer.PlayerId] = Main.MinSpeed;    //tmpSpeedで後ほど値を戻すので代入しています。
+        var tmpSpeed = TOHPlugin.AllPlayerSpeed[killer.PlayerId];
+        TOHPlugin.AllPlayerSpeed[killer.PlayerId] = TOHPlugin.MinSpeed;    //tmpSpeedで後ほど値を戻すので代入しています。
         ReportDeadBodyPatch.CanReport[killer.PlayerId] = false;
         killer.MarkDirtySettings();
         _ = new LateTask(() =>
         {
-            Main.AllPlayerSpeed[killer.PlayerId] = tmpSpeed;
+            TOHPlugin.AllPlayerSpeed[killer.PlayerId] = tmpSpeed;
             ReportDeadBodyPatch.CanReport[killer.PlayerId] = true;
             killer.MarkDirtySettings();
             RPC.PlaySoundRPC(killer.PlayerId, Sounds.TaskComplete);

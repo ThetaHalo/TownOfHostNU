@@ -13,7 +13,7 @@ public static class DoorsReset
     public static void Initialize()
     {
         // AirshipとPolusとFungle以外は非対応
-        if ((MapNames)Main.NormalOptions.MapId is not (MapNames.Airship or MapNames.Polus or MapNames.Fungle))
+        if ((MapNames)TOHPlugin.NormalOptions.MapId is not (MapNames.Airship or MapNames.Polus or MapNames.Fungle))
         {
             isEnabled = false;
             return;

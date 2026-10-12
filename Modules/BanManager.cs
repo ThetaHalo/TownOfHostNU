@@ -8,13 +8,13 @@ namespace TownOfHost
 {
     public static class BanManager
     {
-        private static readonly string DENY_NAME_LIST_PATH = @"./TOH_DATA/DenyName.txt";
-        private static readonly string BAN_LIST_PATH = @"./TOH_DATA/BanList.txt";
+        private static readonly string DENY_NAME_LIST_PATH = $@"{TOHPlugin.BasePath}/TOH_DATA/DenyName.txt";
+        private static readonly string BAN_LIST_PATH = $@"{TOHPlugin.BasePath}/TOH_DATA/BanList.txt";
 
         [PluginModuleInitializer]
         public static void Init()
         {
-            Directory.CreateDirectory("TOH_DATA");
+            Directory.CreateDirectory($"{TOHPlugin.BasePath}/TOH_DATA");
             if (!File.Exists(DENY_NAME_LIST_PATH)) File.Create(DENY_NAME_LIST_PATH).Close();
             if (!File.Exists(BAN_LIST_PATH)) File.Create(BAN_LIST_PATH).Close();
         }
@@ -32,7 +32,7 @@ namespace TownOfHost
             if (!AmongUsClient.Instance.AmHost || !Options.ApplyDenyNameList.GetBool()) return;
             try
             {
-                Directory.CreateDirectory("TOH_DATA");
+                Directory.CreateDirectory($"{TOHPlugin.BasePath}/TOH_DATA");
                 if (!File.Exists(DENY_NAME_LIST_PATH)) File.Create(DENY_NAME_LIST_PATH).Close();
                 using StreamReader sr = new(DENY_NAME_LIST_PATH);
                 string line;
@@ -69,7 +69,7 @@ namespace TownOfHost
             if (player == null || player?.FriendCode == "") return false;
             try
             {
-                Directory.CreateDirectory("TOH_DATA");
+                Directory.CreateDirectory($"{TOHPlugin.BasePath}/TOH_DATA");
                 if (!File.Exists(BAN_LIST_PATH)) File.Create(BAN_LIST_PATH).Close();
                 using StreamReader sr = new(BAN_LIST_PATH);
                 string line;

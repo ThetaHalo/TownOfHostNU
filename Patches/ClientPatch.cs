@@ -15,17 +15,17 @@ namespace TownOfHost
         public static bool Prefix(GameStartManager __instance)
         {
             // 定数設定による公開ルームブロック
-            if (!Main.AllowPublicRoom)
+            if (!TOHPlugin.AllowPublicRoom)
             {
                 var message = GetString("DisabledByProgram");
                 Logger.Info(message, "MakePublicPatch");
                 Logger.SendInGame(message);
                 return false;
             }
-            if (ModUpdater.isBroken || ModUpdater.hasUpdate || !VersionChecker.IsSupported || !Main.IsPublicAvailableOnThisVersion)
+            if (ModUpdater.isBroken || ModUpdater.hasUpdate || !VersionChecker.IsSupported || !TOHPlugin.IsPublicAvailableOnThisVersion)
             {
                 var message = "";
-                if (!Main.IsPublicAvailableOnThisVersion) message = GetString("PublicNotAvailableOnThisVersion");
+                if (!TOHPlugin.IsPublicAvailableOnThisVersion) message = GetString("PublicNotAvailableOnThisVersion");
                 if (!VersionChecker.IsSupported) message = GetString("UnsupportedVersion");
                 if (ModUpdater.isBroken) message = GetString("ModBrokenMessage");
                 if (ModUpdater.hasUpdate) message = GetString("CanNotJoinPublicRoomNoLatest");
@@ -41,7 +41,7 @@ namespace TownOfHost
     {
         public static void Postfix(MMOnlineManager __instance)
         {
-            if (!(ModUpdater.hasUpdate || ModUpdater.isBroken || !VersionChecker.IsSupported || !Main.IsPublicAvailableOnThisVersion)) return;
+            if (!(ModUpdater.hasUpdate || ModUpdater.isBroken || !VersionChecker.IsSupported || !TOHPlugin.IsPublicAvailableOnThisVersion)) return;
             var obj = GameObject.Find("FindGameButton");
             if (obj)
             {
@@ -64,7 +64,7 @@ namespace TownOfHost
                 {
                     message = GetString("UnsupportedVersion");
                 }
-                else if (!Main.IsPublicAvailableOnThisVersion)
+                else if (!TOHPlugin.IsPublicAvailableOnThisVersion)
                 {
                     message = GetString("PublicNotAvailableOnThisVersion");
                 }

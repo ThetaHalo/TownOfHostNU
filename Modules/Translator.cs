@@ -54,13 +54,13 @@ namespace TownOfHost
             }
 
             // カスタム翻訳ファイルの読み込み
-            if (!Directory.Exists(LANGUAGE_FOLDER_NAME)) Directory.CreateDirectory(LANGUAGE_FOLDER_NAME);
+            if (!Directory.Exists($"{TOHPlugin.BasePath}/{LANGUAGE_FOLDER_NAME}")) Directory.CreateDirectory($"{TOHPlugin.BasePath}/{LANGUAGE_FOLDER_NAME}");
 
             // 翻訳テンプレートの作成
             CreateTemplateFile();
             foreach (var lang in EnumHelper.GetAllValues<SupportedLangs>())
             {
-                if (File.Exists(@$"./{LANGUAGE_FOLDER_NAME}/{lang}.dat"))
+                if (File.Exists(@$"{TOHPlugin.BasePath}/{LANGUAGE_FOLDER_NAME}/{lang}.dat"))
                     LoadCustomTranslation($"{lang}.dat", lang);
             }
         }
@@ -68,7 +68,7 @@ namespace TownOfHost
         public static string GetString(string s, Dictionary<string, string> replacementDic = null)
         {
             var langId = TranslationController.InstanceExists ? TranslationController.Instance.currentLanguage.languageID : SupportedLangs.English;
-            if (Main.ForceJapanese.Value) langId = SupportedLangs.Japanese;
+            if (TOHPlugin.ForceJapanese.Value) langId = SupportedLangs.Japanese;
             string str = GetString(s, langId);
             if (replacementDic != null)
                 foreach (var rd in replacementDic)
@@ -89,7 +89,7 @@ namespace TownOfHost
             {
                 //このソースコ―ドを見た人へ。口外しないでもらえると嬉しいです...
                 //To anyone who has seen this source code. I would appreciate it if you would keep your mouth shut...
-                if (Main.IsChristmas)
+                if (TOHPlugin.IsChristmas)
                 {
                     res = str switch
                     {
@@ -113,16 +113,16 @@ namespace TownOfHost
         {
             var CurrentLanguage = TranslationController.Instance.currentLanguage.languageID;
             var lang = CurrentLanguage;
-            if (Main.ForceJapanese.Value && Main.JapaneseRoleName.Value)
+            if (TOHPlugin.ForceJapanese.Value && TOHPlugin.JapaneseRoleName.Value)
                 lang = SupportedLangs.Japanese;
-            else if (CurrentLanguage == SupportedLangs.Japanese && !Main.JapaneseRoleName.Value)
+            else if (CurrentLanguage == SupportedLangs.Japanese && !TOHPlugin.JapaneseRoleName.Value)
                 lang = SupportedLangs.English;
 
             return GetString(str, lang);
         }
         public static void LoadCustomTranslation(string filename, SupportedLangs lang)
         {
-            string path = @$"./{LANGUAGE_FOLDER_NAME}/{filename}";
+            string path = @$"{TOHPlugin.BasePath}/{LANGUAGE_FOLDER_NAME}/{filename}";
             if (File.Exists(path))
             {
                 Logger.Info($"カスタム翻訳ファイル「{filename}」を読み込み", "LoadCustomTranslation");
@@ -155,10 +155,10 @@ namespace TownOfHost
         {
             var sb = new StringBuilder();
             foreach (var title in translateMaps) sb.Append($"{title.Key}:\n");
-            File.WriteAllText(@$"./{LANGUAGE_FOLDER_NAME}/template.dat", sb.ToString());
+            File.WriteAllText(@$"{TOHPlugin.BasePath}/{LANGUAGE_FOLDER_NAME}/template.dat", sb.ToString());
             sb.Clear();
             foreach (var title in translateMaps) sb.Append($"{title.Key}:{title.Value[0].Replace("\n", "\\n").Replace("\r", "\\r")}\n");
-            File.WriteAllText(@$"./{LANGUAGE_FOLDER_NAME}/template_English.dat", sb.ToString());
+            File.WriteAllText(@$"{TOHPlugin.BasePath}/{LANGUAGE_FOLDER_NAME}/template_English.dat", sb.ToString());
         }
         public static void ExportCustomTranslation()
         {
@@ -170,7 +170,7 @@ namespace TownOfHost
                 if (!title.Value.TryGetValue((int)lang, out var text)) text = "";
                 sb.Append($"{title.Key}:{text.Replace("\n", "\\n").Replace("\r", "\\r")}\n");
             }
-            File.WriteAllText(@$"./{LANGUAGE_FOLDER_NAME}/export_{lang}.dat", sb.ToString());
+            File.WriteAllText(@$"{TOHPlugin.BasePath}/{LANGUAGE_FOLDER_NAME}/export_{lang}.dat", sb.ToString());
         }
     }
 }

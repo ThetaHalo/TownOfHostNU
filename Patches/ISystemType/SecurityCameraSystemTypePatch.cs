@@ -18,7 +18,7 @@ public static class SecurityCameraSystemTypeUpdateSystemPatch
         // カメラ無効時，バニラプレイヤーはカメラを開けるので点滅させない
         if (amount == SecurityCameraSystemType.IncrementOp)
         {
-            var camerasDisabled = (MapNames)Main.NormalOptions.MapId switch
+            var camerasDisabled = (MapNames)TOHPlugin.NormalOptions.MapId switch
             {
                 MapNames.Skeld => Options.DisableSkeldCamera.GetBool(),
                 MapNames.Polus => Options.DisablePolusCamera.GetBool(),

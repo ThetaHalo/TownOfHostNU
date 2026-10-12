@@ -152,7 +152,7 @@ namespace TownOfHost
                     logger.Info($"{__instance.GetNameWithRole()} => {target.GetNameWithRole()}(シェイプシフト中のため遅延)");
                     return;
                 }
-                if (Main.CheckShapeshift.TryGetValue(target.PlayerId, out var shapeshifting) && shapeshifting)
+                if (TOHPlugin.CheckShapeshift.TryGetValue(target.PlayerId, out var shapeshifting) && shapeshifting)
                 {
                     //シェイプシフト強制解除
                     target.RpcShapeshift(target, false);
@@ -234,7 +234,7 @@ namespace TownOfHost
                 Vector2 shapeshifterPosition = shapeshifter.transform.position;//変身者の位置
                 Dictionary<PlayerControl, float> mpdistance = new();
                 float dis;
-                foreach (var p in Main.AllAlivePlayerControls)
+                foreach (var p in TOHPlugin.AllAlivePlayerControls)
                 {
                     if (p.Data.Role.Role != RoleTypes.Shapeshifter && !p.Is(CustomRoleTypes.Impostor) && !p.Is(targetRole))
                     {
@@ -248,7 +248,7 @@ namespace TownOfHost
                     PlayerControl targetm = min.Key;
                     targetm.RpcSetCustomRole(targetRole);
                     Logger.Info($"Make SKMadmate:{targetm.name}", "Shapeshift");
-                    Main.SKMadmateNowCount++;
+                    TOHPlugin.SKMadmateNowCount++;
                     Utils.MarkEveryoneDirtySettings();
                     Utils.NotifyRoles();
                 }
@@ -319,14 +319,14 @@ namespace TownOfHost
             var shapeshifter = __instance;
             var shapeshifting = shapeshifter.PlayerId != target.PlayerId;
 
-            if (Main.CheckShapeshift.TryGetValue(shapeshifter.PlayerId, out var last) && last == shapeshifting)
+            if (TOHPlugin.CheckShapeshift.TryGetValue(shapeshifter.PlayerId, out var last) && last == shapeshifting)
             {
                 Logger.Info($"{__instance?.GetNameWithRole()}:Cancel Shapeshift.Prefix", "Shapeshift");
                 return;
             }
 
-            Main.CheckShapeshift[shapeshifter.PlayerId] = shapeshifting;
-            Main.ShapeshiftTarget[shapeshifter.PlayerId] = target.PlayerId;
+            TOHPlugin.CheckShapeshift[shapeshifter.PlayerId] = shapeshifting;
+            TOHPlugin.ShapeshiftTarget[shapeshifter.PlayerId] = target.PlayerId;
 
             shapeshifter.GetRoleClass()?.OnShapeshift(target);
 
@@ -388,14 +388,14 @@ namespace TownOfHost
 
             GameStates.InTask = false;
 
-            Main.isFirstTurn = false;
+            TOHPlugin.isFirstTurn = false;
             foreach (var role in CustomRoleManager.AllActiveRoles.Values)
             {
                 role.OnReportDeadBody(__instance, target);
             }
 
-            Main.AllPlayerControls
-                .Where(pc => Main.CheckShapeshift.ContainsKey(pc.PlayerId))
+            TOHPlugin.AllPlayerControls
+                .Where(pc => TOHPlugin.CheckShapeshift.ContainsKey(pc.PlayerId))
                 .Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true));
             MeetingTimeManager.OnReportDeadBody();
 
@@ -442,7 +442,7 @@ namespace TownOfHost
 
             if (AmongUsClient.Instance.AmHost)
             {//実行クライアントがホストの場合のみ実行
-                if (GameStates.IsLobby && (ModUpdater.hasUpdate || ModUpdater.isBroken || !Main.AllowPublicRoom || !VersionChecker.IsSupported || !Main.IsPublicAvailableOnThisVersion) && AmongUsClient.Instance.IsGamePublic)
+                if (GameStates.IsLobby && (ModUpdater.hasUpdate || ModUpdater.isBroken || !TOHPlugin.AllowPublicRoom || !VersionChecker.IsSupported || !TOHPlugin.IsPublicAvailableOnThisVersion) && AmongUsClient.Instance.IsGamePublic)
                     AmongUsClient.Instance.ChangeGamePublic(false);
 
                 if (GameStates.IsInTask && ReportDeadBodyPatch.CanReport[__instance.PlayerId] && ReportDeadBodyPatch.WaitReport[__instance.PlayerId].Count > 0)
@@ -490,11 +490,11 @@ namespace TownOfHost
             {
                 if (GameStates.IsLobby)
                 {
-                    if (Main.playerVersion.TryGetValue(__instance.PlayerId, out var ver))
+                    if (TOHPlugin.playerVersion.TryGetValue(__instance.PlayerId, out var ver))
                     {
-                        if (Main.ForkId != ver.forkId) // フォークIDが違う場合
+                        if (TOHPlugin.ForkId != ver.forkId) // フォークIDが違う場合
                             __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.2>{ver.forkId}</size>\n{__instance?.name}</color>";
-                        else if (Main.version.CompareTo(ver.version) == 0)
+                        else if (TOHPlugin.version.CompareTo(ver.version) == 0)
                             __instance.cosmetics.nameText.text = ver.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" ? $"<color=#87cefa>{__instance.name}</color>" : $"<color=#ffff00><size=1.2>{ver.tag}</size>\n{__instance?.name}</color>";
                         else __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.2>v{ver.version}</size>\n{__instance?.name}</color>";
                     }
@@ -585,15 +585,15 @@ namespace TownOfHost
         //FIXME: 役職クラス化のタイミングで、このメソッドは移動予定
         public static void LoversSuicide(byte deathId = 0x7f, bool isExiled = false)
         {
-            if (CustomRoles.Lovers.IsPresent() && Main.isLoversDead == false)
+            if (CustomRoles.Lovers.IsPresent() && TOHPlugin.isLoversDead == false)
             {
-                foreach (var loversPlayer in Main.LoversPlayers)
+                foreach (var loversPlayer in TOHPlugin.LoversPlayers)
                 {
                     //生きていて死ぬ予定でなければスキップ
                     if (!loversPlayer.Data.IsDead && loversPlayer.PlayerId != deathId) continue;
 
-                    Main.isLoversDead = true;
-                    foreach (var partnerPlayer in Main.LoversPlayers)
+                    TOHPlugin.isLoversDead = true;
+                    foreach (var partnerPlayer in TOHPlugin.LoversPlayers)
                     {
                         //本人ならスキップ
                         if (loversPlayer.PlayerId == partnerPlayer.PlayerId) continue;
@@ -622,7 +622,7 @@ namespace TownOfHost
             roleText.transform.SetParent(__instance.cosmetics.nameText.transform);
             roleText.transform.localPosition = new Vector3(0f, 0.2f, 0f);
             roleText.transform.localScale = new(1f, 1f, 1f);
-            roleText.fontSize = Main.RoleTextSize;
+            roleText.fontSize = TOHPlugin.RoleTextSize;
             roleText.text = "RoleText";
             roleText.gameObject.name = "RoleText";
             roleText.enabled = false;
@@ -735,7 +735,7 @@ namespace TownOfHost
             {
                 var targetIsKiller = target.GetRoleClass() is IKiller;
                 var ghostRoles = new Dictionary<PlayerControl, RoleTypes>();
-                foreach (var seer in Main.AllPlayerControls)
+                foreach (var seer in TOHPlugin.AllPlayerControls)
                 {
                     var self = seer.PlayerId == target.PlayerId;
                     var seerIsKiller = seer.GetRoleClass() is IKiller;

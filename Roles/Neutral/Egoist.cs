@@ -25,7 +25,7 @@ public sealed class Egoist : RoleBase, ISidekickable, IKiller, ISchrodingerCatOw
             {
                 AssignRoleType = CustomRoleTypes.Impostor,
                 IsInitiallyAssignableCallBack =
-                    () => Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors) > 1,
+                    () => TOHPlugin.RealOptionsData.GetInt(Int32OptionNames.NumImpostors) > 1,
                 AssignCountRule = new(1, 1, 1)
             }
         );
@@ -56,7 +56,7 @@ public sealed class Egoist : RoleBase, ISidekickable, IKiller, ISchrodingerCatOw
     }
     public override void Add()
     {
-        foreach (var impostor in Main.AllPlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)))
+        foreach (var impostor in TOHPlugin.AllPlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)))
         {
             NameColorManager.Add(impostor.PlayerId, Player.PlayerId);
         }
@@ -70,7 +70,7 @@ public sealed class Egoist : RoleBase, ISidekickable, IKiller, ISchrodingerCatOw
     public bool CanUseSabotageButton() => true;
     public static bool CheckWin()
     {
-        if (Main.AllAlivePlayerControls.All(p => !p.Is(RoleTypes.Impostor)) &&
+        if (TOHPlugin.AllAlivePlayerControls.All(p => !p.Is(RoleTypes.Impostor)) &&
             egoist.IsAlive()) //インポスター全滅でエゴイストが生存
         {
             Win();

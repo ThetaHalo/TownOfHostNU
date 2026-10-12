@@ -1,8 +1,11 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using AmongUs.GameOptions;
 using HarmonyLib;
+using Il2CppInterop.Runtime.InteropTypes;
+using TownOfHost.Modules;
 using UnityEngine;
 
 using TownOfHost.Roles.Core;
@@ -10,21 +13,7 @@ using static TownOfHost.Translator;
 
 namespace TownOfHost
 {
-    [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.CoBegin))]
-    class SetUpRoleTextCoBeginPatch
-    {
-        public static void Postfix(IntroCutscene __instance, ref Il2CppSystem.Collections.IEnumerator __result)
-        {
-            //ShowRoleに直接パッチあて出来ないためCoBegin中にパッチを当てる
-            var patcher = new CoroutinPatcher(__result);
-            //ShowRoleはステートマシンクラスになっているためその実行前にパッチを当てる
-            //元々Postfixだが、タイミング的にはPrefixの方が適切なのでPrefixに当てる
-            patcher.AddPrefix(typeof(IntroCutscene._ShowRole_d__41), () => SetUpRoleTextPatch.Postfix(__instance));
-            __result = patcher.EnumerateWithPatch();
-        }
-    }
-    // Patchが当たらないが念のためコメントアウト
-    //[HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.ShowRole))]
+    [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.ShowRole))]
     class SetUpRoleTextPatch
     {
         public static void Postfix(IntroCutscene __instance)
@@ -58,24 +47,24 @@ namespace TownOfHost
         {
             var logger = Logger.Handler("Info");
             logger.Info("------------名前表示------------");
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in TOHPlugin.AllPlayerControls)
             {
                 logger.Info($"{(pc.AmOwner ? "[*]" : ""),-3}{pc.PlayerId,-2}:{pc.name.PadRightV2(20)}:{pc.cosmetics.nameText.text}({Palette.ColorNames[pc.Data.DefaultOutfit.ColorId].ToString().Replace("Color", "")})");
                 pc.cosmetics.nameText.text = pc.name;
             }
             logger.Info("----------役職割り当て----------");
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in TOHPlugin.AllPlayerControls)
             {
                 logger.Info($"{(pc.AmOwner ? "[*]" : ""),-3}{pc.PlayerId,-2}:{pc?.Data?.PlayerName?.PadRightV2(20)}:{pc.GetAllRoleName().RemoveHtmlTags()}");
             }
             logger.Info("--------------環境--------------");
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in TOHPlugin.AllPlayerControls)
             {
                 try
                 {
                     var text = pc.AmOwner ? "[*]" : "   ";
                     text += $"{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetClient()?.PlatformData?.Platform.ToString()?.Replace("Standalone", ""),-11}";
-                    if (Main.playerVersion.TryGetValue(pc.PlayerId, out PlayerVersion pv))
+                    if (TOHPlugin.playerVersion.TryGetValue(pc.PlayerId, out PlayerVersion pv))
                         text += $":Mod({pv.forkId}/{pv.version}:{pv.tag})";
                     else text += ":Vanilla";
                     logger.Info(text);
@@ -93,8 +82,8 @@ namespace TownOfHost
                 if (!o.IsHiddenOn(Options.CurrentGameMode) && (o.Parent == null ? !o.GetString().Equals("0%") : o.Parent.GetBool()))
                     logger.Info($"{(o.Parent == null ? o.Name.PadRightV2(40) : $"┗ {o.Name}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}");
             logger.Info("-------------その他-------------");
-            logger.Info($"プレイヤー数: {Main.AllPlayerControls.Count()}人");
-            Main.AllPlayerControls.Do(x => PlayerState.GetByPlayerId(x.PlayerId).InitTask(x));
+            logger.Info($"プレイヤー数: {TOHPlugin.AllPlayerControls.Count()}人");
+            TOHPlugin.AllPlayerControls.Do(x => PlayerState.GetByPlayerId(x.PlayerId).InitTask(x));
             GameData.Instance.RecomputeTaskCounts();
             TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
 
@@ -152,7 +141,7 @@ namespace TownOfHost
                 case CustomRoles.Sheriff:
                     __instance.BackgroundBar.material.color = Palette.CrewmateBlue;
                     __instance.ImpostorText.gameObject.SetActive(true);
-                    var numImpostors = Main.NormalOptions.NumImpostors;
+                    var numImpostors = TOHPlugin.NormalOptions.NumImpostors;
                     var text = numImpostors == 1
                         ? GetString(StringNames.NumImpostorsS)
                         : string.Format(GetString(StringNames.NumImpostorsP), numImpostors);
@@ -170,7 +159,7 @@ namespace TownOfHost
 
             if (Input.GetKey(KeyCode.RightShift))
             {
-                __instance.TeamTitle.text = Main.ModName;
+                __instance.TeamTitle.text = TOHPlugin.ModName;
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = "https://github.com/tukasa0001/TownOfHost" +
                     "\r\nOut Now on Github";
@@ -215,12 +204,12 @@ namespace TownOfHost
                 //シェリフの場合はキャンセルしてBeginCrewmateに繋ぐ
                 yourTeam = new Il2CppSystem.Collections.Generic.List<PlayerControl>();
                 yourTeam.Add(PlayerControl.LocalPlayer);
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (var pc in TOHPlugin.AllPlayerControls)
                 {
                     if (!pc.AmOwner) yourTeam.Add(pc);
                 }
                 __instance.BeginCrewmate(yourTeam);
-                __instance.overlayHandle.color = Palette.CrewmateBlue;
+                //__instance.overlayHandle.color = Palette.CrewmateBlue;
                 return false;
             }
             BeginCrewmatePatch.Prefix(__instance, ref yourTeam);
@@ -231,16 +220,22 @@ namespace TownOfHost
             BeginCrewmatePatch.Postfix(__instance, ref yourTeam);
         }
     }
-    [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.OnDestroy))]
+    [HarmonyPatch(typeof(IntroCutscene))]
     class IntroCutsceneDestroyPatch
     {
-        public static void Postfix(IntroCutscene __instance)
+        public static MethodBase TargetMethod()
         {
+            return Utils.GetStateMachineMoveNext<IntroCutscene>(nameof(IntroCutscene.CoBegin));
+        }
+        public static void Postfix(Il2CppObjectBase __instance)
+        {
+            var wrapper = new StateMachineWrapper<IntroCutscene>(__instance);
+            if (wrapper.GetState() != -1) return;
             if (!GameStates.IsInGame) return;
 
-            Main.isFirstTurn = true;
+            TOHPlugin.isFirstTurn = true;
 
-            var mapId = Main.NormalOptions.MapId;
+            var mapId = TOHPlugin.NormalOptions.MapId;
             // エアシップではまだ湧かない
             if ((MapNames)mapId != MapNames.Airship)
             {
@@ -254,7 +249,7 @@ namespace TownOfHost
             {
                 if (mapId != 4)
                 {
-                    Main.AllPlayerControls.Do(pc =>
+                    TOHPlugin.AllPlayerControls.Do(pc =>
                     {
                         pc.GetRoleClass()?.OnSpawn(true);
                         pc.SyncSettings();
@@ -263,10 +258,10 @@ namespace TownOfHost
                     if (Options.FixFirstKillCooldown.GetBool())
                         _ = new LateTask(() =>
                         {
-                            Main.AllPlayerControls.Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
+                            TOHPlugin.AllPlayerControls.Do(pc => pc.SetKillCooldown(TOHPlugin.AllPlayerKillCooldown[pc.PlayerId] - 2f));
                         }, 2f, "FixKillCooldownTask");
                 }
-                _ = new LateTask(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
+                _ = new LateTask(() => TOHPlugin.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
                 if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
                 {
                     PlayerControl.LocalPlayer.RpcExile();
@@ -279,19 +274,19 @@ namespace TownOfHost
                     {
                         case 0:
                             map = new RandomSpawn.SkeldSpawnMap();
-                            Main.AllPlayerControls.Do(map.RandomTeleport);
+                            TOHPlugin.AllPlayerControls.Do(map.RandomTeleport);
                             break;
                         case 1:
                             map = new RandomSpawn.MiraHQSpawnMap();
-                            Main.AllPlayerControls.Do(map.RandomTeleport);
+                            TOHPlugin.AllPlayerControls.Do(map.RandomTeleport);
                             break;
                         case 2:
                             map = new RandomSpawn.PolusSpawnMap();
-                            Main.AllPlayerControls.Do(map.RandomTeleport);
+                            TOHPlugin.AllPlayerControls.Do(map.RandomTeleport);
                             break;
                         case 5:
                             map = new RandomSpawn.FungleSpawnMap();
-                            Main.AllPlayerControls.Do(map.RandomTeleport);
+                            TOHPlugin.AllPlayerControls.Do(map.RandomTeleport);
                             break;
                     }
                 }

@@ -70,7 +70,7 @@ public sealed class Arsonist : RoleBase, IKiller
     }
     public override void Add()
     {
-        foreach (var ar in Main.AllPlayerControls)
+        foreach (var ar in TOHPlugin.AllPlayerControls)
             IsDoused.Add(ar.PlayerId, false);
     }
     public bool CanUseKillButton() => !IsDouseDone(Player);
@@ -185,7 +185,7 @@ public sealed class Arsonist : RoleBase, IKiller
     {
         if (GameStates.IsInGame && IsDouseDone(Player))
         {
-            foreach (var pc in Main.AllAlivePlayerControls)
+            foreach (var pc in TOHPlugin.AllAlivePlayerControls)
             {
                 if (pc.PlayerId != Player.PlayerId)
                 {
@@ -244,7 +244,7 @@ public sealed class Arsonist : RoleBase, IKiller
     {
         int doused = 0, all = 0;
         //多分この方がMain.isDousedでforeachするより他のアーソニストの分ループ数少なくて済む
-        foreach (var pc in Main.AllAlivePlayerControls)
+        foreach (var pc in TOHPlugin.AllAlivePlayerControls)
         {
             if (pc.PlayerId == Player.PlayerId) continue; //アーソニストは除外
 

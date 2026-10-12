@@ -99,14 +99,14 @@ public sealed class BountyHunter : RoleBase, IImpostor
             if (GetTarget() == target)
             {//ターゲットをキルした場合
                 Logger.Info($"{killer?.Data?.PlayerName}:ターゲットをキル", "BountyHunter");
-                Main.AllPlayerKillCooldown[killer.PlayerId] = SuccessKillCooldown;
+                TOHPlugin.AllPlayerKillCooldown[killer.PlayerId] = SuccessKillCooldown;
                 killer.SyncSettings();//キルクール処理を同期
                 ResetTarget();
             }
             else
             {
                 Logger.Info($"{killer?.Data?.PlayerName}:ターゲット以外をキル", "BountyHunter");
-                Main.AllPlayerKillCooldown[killer.PlayerId] = FailureKillCooldown;
+                TOHPlugin.AllPlayerKillCooldown[killer.PlayerId] = FailureKillCooldown;
                 killer.SyncSettings();//キルクール処理を同期
             }
         }
@@ -155,7 +155,7 @@ public sealed class BountyHunter : RoleBase, IImpostor
         Logger.Info($"{Player.GetNameWithRole()}:ターゲットリセット", "BountyHunter");
         Player.RpcResetAbilityCooldown(); ;//タイマー（変身クールダウン）のリセットと
 
-        var cTargets = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(pc => !pc.Is(CountTypes.Impostor)));
+        var cTargets = new List<PlayerControl>(TOHPlugin.AllAlivePlayerControls.Where(pc => !pc.Is(CountTypes.Impostor)));
 
         if (cTargets.Count >= 2)
             cTargets.RemoveAll(x => x == Target); //前回のターゲットは除外
@@ -193,7 +193,7 @@ public sealed class BountyHunter : RoleBase, IImpostor
         if (!Is(seer) || !Is(seen)) return "";
 
         var target = GetTarget();
-        return target != null ? $"{(isForHud ? GetString("BountyCurrentTarget") : "Target")}:{Main.AllPlayerNames[target.PlayerId]}" : "";
+        return target != null ? $"{(isForHud ? GetString("BountyCurrentTarget") : "Target")}:{TOHPlugin.AllPlayerNames[target.PlayerId]}" : "";
     }
     public override string GetSuffix(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {

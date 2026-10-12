@@ -74,7 +74,7 @@ namespace TownOfHost.Roles
         {
             if (AssignMode == AssignAlgorithm.Fixed) return true;
             var result = true;
-            var opt = Main.NormalOptions.Cast<IGameOptions>();
+            var opt = TOHPlugin.NormalOptions.Cast<IGameOptions>();
 
             var playerCount = GameData.Instance.PlayerCount;
             var numImpostors = Math.Min(playerCount, opt.GetInt(Int32OptionNames.NumImpostors));
@@ -131,7 +131,7 @@ namespace TownOfHost.Roles
         ///</summary>
         private static void SetFixedAssignRole()
         {
-            int numImpostorsLeft = Math.Min(GameData.Instance.PlayerCount, Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors));
+            int numImpostorsLeft = Math.Min(GameData.Instance.PlayerCount, TOHPlugin.RealOptionsData.GetInt(Int32OptionNames.NumImpostors));
             //インポスター以外の人数
             //マッド、クルー、ニュートラル合計の限界値
             int numOthersLeft = GameData.Instance.PlayerCount - numImpostorsLeft;
@@ -165,7 +165,7 @@ namespace TownOfHost.Roles
         {
 
             var rand = IRandom.Instance;
-            int numImpostors = Math.Min(GameData.Instance.PlayerCount, Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors));
+            int numImpostors = Math.Min(GameData.Instance.PlayerCount, TOHPlugin.RealOptionsData.GetInt(Int32OptionNames.NumImpostors));
             //インポスター以外の人数
             //マッド、クルー、ニュートラル合計の限界値
             int numOthers = GameData.Instance.PlayerCount - numImpostors;

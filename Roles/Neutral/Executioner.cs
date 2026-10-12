@@ -77,7 +77,7 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
         var playerId = Player.PlayerId;
         List<PlayerControl> targetList = new();
         var rand = IRandom.Instance;
-        foreach (var target in Main.AllPlayerControls)
+        foreach (var target in TOHPlugin.AllPlayerControls)
         {
             if (playerId == target.PlayerId) continue;
             else if (!CanTargetImpostor && target.Is(CustomRoleTypes.Impostor)) continue;

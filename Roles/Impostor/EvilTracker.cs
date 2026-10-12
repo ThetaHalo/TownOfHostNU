@@ -41,7 +41,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         //ImpostorsIdはEvilTracker内で共有
         ImpostorsId.Clear();
         var playerId = player.PlayerId;
-        foreach (var target in Main.AllAlivePlayerControls)
+        foreach (var target in TOHPlugin.AllAlivePlayerControls)
         {
             var targetId = target.PlayerId;
             if (targetId != playerId && target.Is(CustomRoleTypes.Impostor))

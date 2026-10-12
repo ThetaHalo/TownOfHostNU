@@ -161,7 +161,7 @@ public class Snitch : RoleBase
         if (TargetList.Count == 0)
         {
             //TargetListが未作成ならここで作る
-            foreach (var target in Main.AllAlivePlayerControls)
+            foreach (var target in TOHPlugin.AllAlivePlayerControls)
             {
                 if (!IsSnitchTarget(target)) continue;
 

@@ -52,7 +52,7 @@ namespace TownOfHost
 
             if (oldIsCamouflage != IsCamouflage)
             {
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (var pc in TOHPlugin.AllPlayerControls)
                 {
                     RpcSetSkin(pc);
 
@@ -86,10 +86,10 @@ namespace TownOfHost
             {
                 //コミュサボ解除または強制解除
 
-                if (Main.CheckShapeshift.TryGetValue(id, out var shapeshifting) && shapeshifting && !RevertToDefault)
+                if (TOHPlugin.CheckShapeshift.TryGetValue(id, out var shapeshifting) && shapeshifting && !RevertToDefault)
                 {
                     //シェイプシフターなら今の姿のidに変更
-                    id = Main.ShapeshiftTarget[id];
+                    id = TOHPlugin.ShapeshiftTarget[id];
                 }
 
                 newOutfit = PlayerSkins[id];

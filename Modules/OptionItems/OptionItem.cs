@@ -255,7 +255,7 @@ namespace TownOfHost
         public static void SyncAllOptions()
         {
             if (
-                Main.AllPlayerControls.Count() <= 1 ||
+                TOHPlugin.AllPlayerControls.Count() <= 1 ||
                 AmongUsClient.Instance.AmHost == false ||
                 PlayerControl.LocalPlayer == null
             ) return;

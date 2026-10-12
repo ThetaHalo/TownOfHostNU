@@ -37,34 +37,34 @@ namespace TownOfHost
             if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default)
             {
                 //カモフラージュ強制解除
-                Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, ForceRevert: true, RevertToDefault: true));
+                TOHPlugin.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, ForceRevert: true, RevertToDefault: true));
 
                 switch (CustomWinnerHolder.WinnerTeam)
                 {
                     case CustomWinner.Crewmate:
-                        Main.AllPlayerControls
+                        TOHPlugin.AllPlayerControls
                             .Where(pc => pc.Is(CustomRoleTypes.Crewmate) && !pc.Is(CustomRoles.Lovers))
                             .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
                         break;
                     case CustomWinner.Impostor:
                         if (Egoist.CheckWin()) break;
 
-                        Main.AllPlayerControls
+                        TOHPlugin.AllPlayerControls
                             .Where(pc => (pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoleTypes.Madmate)) && !pc.Is(CustomRoles.Lovers))
                             .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
                         break;
                 }
                 if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None)
                 {
-                    if (Main.LoversPlayers.Count > 0 && Main.LoversPlayers.ToArray().All(p => p.IsAlive()) && !reason.Equals(GameOverReason.CrewmatesByTask))
+                    if (TOHPlugin.LoversPlayers.Count > 0 && TOHPlugin.LoversPlayers.ToArray().All(p => p.IsAlive()) && !reason.Equals(GameOverReason.CrewmatesByTask))
                     {
                         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Lovers);
-                        Main.AllPlayerControls
+                        TOHPlugin.AllPlayerControls
                             .Where(p => p.Is(CustomRoles.Lovers) && p.IsAlive())
                             .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
                     }
                     //追加勝利陣営
-                    foreach (var pc in Main.AllPlayerControls)
+                    foreach (var pc in TOHPlugin.AllPlayerControls)
                     {
                         if (pc.GetRoleClass() is IAdditionalWinner additionalWinner)
                         {
@@ -94,7 +94,7 @@ namespace TownOfHost
             // バニラ画面でのアウトロを正しくするためのゴーストロール化
             List<byte> ReviveRequiredPlayerIds = new();
             var winner = CustomWinnerHolder.WinnerTeam;
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in TOHPlugin.AllPlayerControls)
             {
                 if (winner == CustomWinner.Draw)
                 {
@@ -186,7 +186,7 @@ namespace TownOfHost
                     reason = GameOverReason.ImpostorsByKill;
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                 }
-                else if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.Lovers))) //ラバーズ勝利
+                else if (TOHPlugin.AllAlivePlayerControls.All(p => p.Is(CustomRoles.Lovers))) //ラバーズ勝利
                 {
                     reason = GameOverReason.ImpostorsByKill;
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Lovers);

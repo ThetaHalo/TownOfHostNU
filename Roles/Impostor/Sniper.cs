@@ -142,7 +142,7 @@ public sealed class Sniper : RoleBase, IImpostor
         //至近距離で外す対策に一歩後ろから判定を開始する
         snipePos -= dir;
 
-        foreach (var target in Main.AllAlivePlayerControls)
+        foreach (var target in TOHPlugin.AllAlivePlayerControls)
         {
             //自分には当たらない
             if (target.PlayerId == Player.PlayerId) continue;

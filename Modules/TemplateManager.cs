@@ -13,25 +13,25 @@ namespace TownOfHost
 {
     public static class TemplateManager
     {
-        private static readonly string TEMPLATE_FILE_PATH = "./TOH_DATA/template.txt";
+        private static readonly string TEMPLATE_FILE_PATH = $"{TOHPlugin.BasePath}/TOH_DATA/template.txt";
         private static Dictionary<string, Func<string>> _replaceDictionary = new()
         {
             ["RoomCode"] = () => InnerNet.GameCode.IntToGameName(AmongUsClient.Instance.GameId),
             ["PlayerName"] = () => DataManager.Player.Customization.Name,
             ["AmongUsVersion"] = () => UnityEngine.Application.version,
-            ["ModVersion"] = () => Main.PluginVersion,
-            ["Map"] = () => Constants.MapNames[Main.NormalOptions.MapId],
-            ["NumEmergencyMeetings"] = () => Main.NormalOptions.NumEmergencyMeetings.ToString(),
-            ["EmergencyCooldown"] = () => Main.NormalOptions.EmergencyCooldown.ToString(),
-            ["DiscussionTime"] = () => Main.NormalOptions.DiscussionTime.ToString(),
-            ["VotingTime"] = () => Main.NormalOptions.VotingTime.ToString(),
-            ["PlayerSpeedMod"] = () => Main.NormalOptions.PlayerSpeedMod.ToString(),
-            ["CrewLightMod"] = () => Main.NormalOptions.CrewLightMod.ToString(),
-            ["ImpostorLightMod"] = () => Main.NormalOptions.ImpostorLightMod.ToString(),
-            ["KillCooldown"] = () => Main.NormalOptions.KillCooldown.ToString(),
-            ["NumCommonTasks"] = () => Main.NormalOptions.NumCommonTasks.ToString(),
-            ["NumLongTasks"] = () => Main.NormalOptions.NumLongTasks.ToString(),
-            ["NumShortTasks"] = () => Main.NormalOptions.NumShortTasks.ToString(),
+            ["ModVersion"] = () => TOHPlugin.PluginVersion,
+            ["Map"] = () => Constants.MapNames[TOHPlugin.NormalOptions.MapId],
+            ["NumEmergencyMeetings"] = () => TOHPlugin.NormalOptions.NumEmergencyMeetings.ToString(),
+            ["EmergencyCooldown"] = () => TOHPlugin.NormalOptions.EmergencyCooldown.ToString(),
+            ["DiscussionTime"] = () => TOHPlugin.NormalOptions.DiscussionTime.ToString(),
+            ["VotingTime"] = () => TOHPlugin.NormalOptions.VotingTime.ToString(),
+            ["PlayerSpeedMod"] = () => TOHPlugin.NormalOptions.PlayerSpeedMod.ToString(),
+            ["CrewLightMod"] = () => TOHPlugin.NormalOptions.CrewLightMod.ToString(),
+            ["ImpostorLightMod"] = () => TOHPlugin.NormalOptions.ImpostorLightMod.ToString(),
+            ["KillCooldown"] = () => TOHPlugin.NormalOptions.KillCooldown.ToString(),
+            ["NumCommonTasks"] = () => TOHPlugin.NormalOptions.NumCommonTasks.ToString(),
+            ["NumLongTasks"] = () => TOHPlugin.NormalOptions.NumLongTasks.ToString(),
+            ["NumShortTasks"] = () => TOHPlugin.NormalOptions.NumShortTasks.ToString(),
             ["Date"] = () => DateTime.Now.ToShortDateString(),
             ["Time"] = () => DateTime.Now.ToShortTimeString(),
         };
@@ -48,10 +48,10 @@ namespace TownOfHost
             {
                 try
                 {
-                    if (!Directory.Exists(@"TOH_DATA")) Directory.CreateDirectory(@"TOH_DATA");
-                    if (File.Exists(@"./template.txt"))
+                    if (!Directory.Exists($"{TOHPlugin.BasePath}/TOH_DATA")) Directory.CreateDirectory($"{TOHPlugin.BasePath}/TOH_DATA");
+                    if (File.Exists($"{TOHPlugin.BasePath}/template.txt"))
                     {
-                        File.Move(@"./template.txt", TEMPLATE_FILE_PATH);
+                        File.Move($"{TOHPlugin.BasePath}/template.txt", TEMPLATE_FILE_PATH);
                     }
                     else
                     {

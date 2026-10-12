@@ -26,20 +26,21 @@ namespace TownOfHost
         [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix, HarmonyPriority(Priority.LowerThanNormal)]
         public static void StartPostfix()
         {
+            if (OperatingSystem.IsAndroid()) return;
             DeleteOldDLL();
             InfoPopup = UnityEngine.Object.Instantiate(Twitch.TwitchManager.Instance.TwitchPopup);
             InfoPopup.name = "InfoPopup";
             InfoPopup.TextAreaTMP.GetComponent<RectTransform>().sizeDelta = new(2.5f, 2f);
             if (!isChecked)
             {
-                CheckRelease(Main.BetaBuildURL.Value != "").GetAwaiter().GetResult();
+                CheckRelease(TOHPlugin.BetaBuildURL.Value != "").GetAwaiter().GetResult();
             }
             MainMenuManagerPatch.UpdateButton.Button.gameObject.SetActive(hasUpdate);
             MainMenuManagerPatch.UpdateButton.Button.transform.Find("FontPlacer/Text_TMP").GetComponent<TMPro.TMP_Text>().SetText($"{GetString("updateButton")}\n{latestTitle}");
         }
         public static async Task<bool> CheckRelease(bool beta = false)
         {
-            string url = beta ? Main.BetaBuildURL.Value : URL + "/releases/latest";
+            string url = beta ? TOHPlugin.BetaBuildURL.Value : URL + "/releases/latest";
             try
             {
                 string result;
@@ -81,7 +82,7 @@ namespace TownOfHost
                         if (assets[i]["name"].ToString() == "TownOfHost.dll")
                             downloadUrl = assets[i]["browser_download_url"].ToString();
                     }
-                    hasUpdate = latestVersion.CompareTo(Main.version) > 0;
+                    hasUpdate = latestVersion.CompareTo(TOHPlugin.version) > 0;
                 }
                 if (downloadUrl == null)
                 {

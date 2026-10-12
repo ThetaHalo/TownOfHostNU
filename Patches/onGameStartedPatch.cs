@@ -20,36 +20,36 @@ namespace TownOfHost
         public static void Postfix(AmongUsClient __instance)
         {
             //注:この時点では役職は設定されていません。
-            Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.GuardianAngel, 0, 0);
+            TOHPlugin.NormalOptions.roleOptions.SetRoleRate(RoleTypes.GuardianAngel, 0, 0);
 
-            Main.AllPlayerKillCooldown = new Dictionary<byte, float>();
-            Main.AllPlayerSpeed = new Dictionary<byte, float>();
+            TOHPlugin.AllPlayerKillCooldown = new Dictionary<byte, float>();
+            TOHPlugin.AllPlayerSpeed = new Dictionary<byte, float>();
 
-            Main.SKMadmateNowCount = 0;
+            TOHPlugin.SKMadmateNowCount = 0;
 
-            Main.AfterMeetingDeathPlayers = new();
-            Main.clientIdList = new();
+            TOHPlugin.AfterMeetingDeathPlayers = new();
+            TOHPlugin.clientIdList = new();
 
-            Main.CheckShapeshift = new();
-            Main.ShapeshiftTarget = new();
+            TOHPlugin.CheckShapeshift = new();
+            TOHPlugin.ShapeshiftTarget = new();
 
             ReportDeadBodyPatch.CanReport = new();
 
             Options.UsedButtonCount = 0;
-            Main.RealOptionsData = new OptionBackupData(GameOptionsManager.Instance.CurrentGameOptions);
+            TOHPlugin.RealOptionsData = new OptionBackupData(GameOptionsManager.Instance.CurrentGameOptions);
 
-            Main.isFirstTurn = false;
+            TOHPlugin.isFirstTurn = false;
 
-            Main.DefaultCrewmateVision = Main.RealOptionsData.GetFloat(FloatOptionNames.CrewLightMod);
-            Main.DefaultImpostorVision = Main.RealOptionsData.GetFloat(FloatOptionNames.ImpostorLightMod);
+            TOHPlugin.DefaultCrewmateVision = TOHPlugin.RealOptionsData.GetFloat(FloatOptionNames.CrewLightMod);
+            TOHPlugin.DefaultImpostorVision = TOHPlugin.RealOptionsData.GetFloat(FloatOptionNames.ImpostorLightMod);
 
-            Main.LastNotifyNames = new();
+            TOHPlugin.LastNotifyNames = new();
 
-            Main.PlayerColors = new();
+            TOHPlugin.PlayerColors = new();
             //名前の記録
-            Main.AllPlayerNames = new();
+            TOHPlugin.AllPlayerNames = new();
 
-            var invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId);
+            var invalidColor = TOHPlugin.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId);
             if (invalidColor.Any())
             {
                 var msg = Translator.GetString("Error.InvalidColor");
@@ -61,31 +61,31 @@ namespace TownOfHost
 
             GameModuleInitializerAttribute.InitializeAll();
 
-            foreach (var target in Main.AllPlayerControls)
+            foreach (var target in TOHPlugin.AllPlayerControls)
             {
-                foreach (var seer in Main.AllPlayerControls)
+                foreach (var seer in TOHPlugin.AllPlayerControls)
                 {
                     var pair = (target.PlayerId, seer.PlayerId);
-                    Main.LastNotifyNames[pair] = target.name;
+                    TOHPlugin.LastNotifyNames[pair] = target.name;
                 }
             }
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in TOHPlugin.AllPlayerControls)
             {
                 var colorId = pc.Data.DefaultOutfit.ColorId;
                 if (AmongUsClient.Instance.AmHost && Options.ColorNameMode.GetBool()) pc.RpcSetName(Palette.GetColorName(colorId));
                 PlayerState.Create(pc.PlayerId);
-                Main.AllPlayerNames[pc.PlayerId] = pc?.Data?.PlayerName;
-                Main.PlayerColors[pc.PlayerId] = Palette.PlayerColors[colorId];
-                Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod); //移動速度をデフォルトの移動速度に変更
+                TOHPlugin.AllPlayerNames[pc.PlayerId] = pc?.Data?.PlayerName;
+                TOHPlugin.PlayerColors[pc.PlayerId] = Palette.PlayerColors[colorId];
+                TOHPlugin.AllPlayerSpeed[pc.PlayerId] = TOHPlugin.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod); //移動速度をデフォルトの移動速度に変更
                 ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId] = new();
                 pc.cosmetics.nameText.text = pc.name;
 
                 var outfit = pc.Data.DefaultOutfit;
                 Camouflage.PlayerSkins[pc.PlayerId] = new NetworkedPlayerInfo.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId);
-                Main.clientIdList.Add(pc.GetClientId());
+                TOHPlugin.clientIdList.Add(pc.GetClientId());
             }
-            Main.VisibleTasksCount = true;
+            TOHPlugin.VisibleTasksCount = true;
             if (__instance.AmHost)
             {
                 RPC.SyncCustomSettingsRPC();
@@ -113,7 +113,7 @@ namespace TownOfHost
             if (!AmongUsClient.Instance.AmHost) return;
             //CustomRpcSenderとRpcSetRoleReplacerの初期化
             Dictionary<byte, CustomRpcSender> senders = new();
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in TOHPlugin.AllPlayerControls)
             {
                 senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", SendOption.Reliable, false);
                 if (pc.PlayerId != 0)
@@ -128,13 +128,13 @@ namespace TownOfHost
                 RoleTypes[] RoleTypesList = [RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.Noisemaker, RoleTypes.Detective, RoleTypes.Tracker, RoleTypes.Shapeshifter, RoleTypes.Phantom, RoleTypes.Viper];
                 foreach (var roleTypes in RoleTypesList)
                 {
-                    var roleOpt = Main.NormalOptions.roleOptions;
+                    var roleOpt = TOHPlugin.NormalOptions.roleOptions;
                     int numRoleTypes = GetRoleTypesCount(roleTypes);
                     roleOpt.SetRoleRate(roleTypes, numRoleTypes, numRoleTypes > 0 ? 100 : 0);
                 }
 
                 List<PlayerControl> AllPlayers = new();
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (var pc in TOHPlugin.AllPlayerControls)
                 {
                     AllPlayers.Add(pc);
                 }
@@ -183,7 +183,7 @@ namespace TownOfHost
             List<PlayerControl> detectives = [];
             List<PlayerControl> vipers = [];
 
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in TOHPlugin.AllPlayerControls)
             {
                 pc.Data.IsDead = false; //プレイヤーの死を解除する
                 var state = PlayerState.GetByPlayerId(pc.PlayerId);
@@ -245,7 +245,7 @@ namespace TownOfHost
             if (Options.CurrentGameMode == CustomGameMode.HideAndSeek)
             {
                 SetColorPatch.IsAntiGlitchDisabled = true;
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (var pc in TOHPlugin.AllPlayerControls)
                 {
                     if (pc.Is(CustomRoleTypes.Impostor))
                         pc.RpcSetColor(0);
@@ -300,7 +300,7 @@ namespace TownOfHost
                 }
 
                 CustomRoleManager.CreateInstance();
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (var pc in TOHPlugin.AllPlayerControls)
                 {
                     HudManager.Instance.SetHudActive(true);
                     pc.ResetKillCooldown();
@@ -308,7 +308,7 @@ namespace TownOfHost
                     //通常モードでかくれんぼをする人用
                     if (Options.IsStandardHAS)
                     {
-                        foreach (var seer in Main.AllPlayerControls)
+                        foreach (var seer in TOHPlugin.AllPlayerControls)
                         {
                             if (seer == pc) continue;
                             if (pc.GetCustomRole().IsImpostor() || pc.IsNeutralKiller()) //変更対象がインポスター陣営orキル可能な第三陣営
@@ -320,13 +320,13 @@ namespace TownOfHost
                 RoleTypes[] RoleTypesList = [RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.Noisemaker, RoleTypes.Detective, RoleTypes.Tracker, RoleTypes.Shapeshifter, RoleTypes.Phantom, RoleTypes.Viper];
                 foreach (var roleTypes in RoleTypesList)
                 {
-                    var roleOpt = Main.NormalOptions.roleOptions;
+                    var roleOpt = TOHPlugin.NormalOptions.roleOptions;
                     roleOpt.SetRoleRate(roleTypes, 0, 0);
                 }
                 GameEndChecker.SetPredicateToNormal();
 
                 GameOptionsSender.AllSenders.Clear();
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (var pc in TOHPlugin.AllPlayerControls)
                 {
                     GameOptionsSender.AllSenders.Add(
                         new PlayerGameOptionsSender(pc)
@@ -364,7 +364,7 @@ namespace TownOfHost
                 RpcSetRoleReplacer.DesyncImpostorList.Add(player.PlayerId);
 
                 var hostRole = player.PlayerId == hostId ? hostBaseRole : RoleTypes.Crewmate;
-                foreach (var seer in Main.AllPlayerControls)
+                foreach (var seer in TOHPlugin.AllPlayerControls)
                 {
                     if (seer.PlayerId == hostId)
                     {
@@ -414,10 +414,10 @@ namespace TownOfHost
         {
             if (!CustomRoles.Lovers.IsPresent()) return;
             //Loversを初期化
-            Main.LoversPlayers.Clear();
-            Main.isLoversDead = false;
+            TOHPlugin.LoversPlayers.Clear();
+            TOHPlugin.isLoversDead = false;
             var allPlayers = new List<PlayerControl>();
-            foreach (var player in Main.AllPlayerControls)
+            foreach (var player in TOHPlugin.AllPlayerControls)
             {
                 if (player.Is(CustomRoles.GM)) continue;
                 allPlayers.Add(player);
@@ -431,7 +431,7 @@ namespace TownOfHost
             for (var i = 0; i < count; i++)
             {
                 var player = allPlayers[rand.Next(0, allPlayers.Count)];
-                Main.LoversPlayers.Add(player);
+                TOHPlugin.LoversPlayers.Add(player);
                 allPlayers.Remove(player);
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
                 Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
@@ -444,7 +444,7 @@ namespace TownOfHost
             foreach (var role in CustomRolesHelper.AllRoles)
             {
                 if (CustomRoleManager.GetRoleInfo(role)?.IsDesyncImpostor == true) continue;
-                if (role == CustomRoles.Egoist && Main.NormalOptions.GetInt(Int32OptionNames.NumImpostors) <= 1) continue;
+                if (role == CustomRoles.Egoist && TOHPlugin.NormalOptions.GetInt(Int32OptionNames.NumImpostors) <= 1) continue;
                 if (role.GetRoleTypes() == roleTypes)
                     count += role.GetRealCount();
             }
@@ -476,7 +476,7 @@ namespace TownOfHost
                     var impostorRole = role is RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom or RoleTypes.Viper;
                     if (impostorRole && DesyncImpostorList.Count != 0)
                     {
-                        foreach (var seer in Main.AllPlayerControls)
+                        foreach (var seer in TOHPlugin.AllPlayerControls)
                         {
                             if (seer.PlayerId == 0) continue;
                             var assignRole = DesyncImpostorList.Contains(seer.PlayerId) ? RoleTypes.Scientist : role;
